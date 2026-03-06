@@ -1,13 +1,14 @@
 import Card from "../../components/ui/Card.jsx";
 import Button from "../../components/ui/Button.jsx";
 import {useState} from "react";
-import {Link} from "react-router-dom";
+import {Link, useNavigate} from "react-router-dom";
 import Input from "../../components/ui/Input.jsx";
 
 import "./Auth.css";
+import {register} from "../../services/authService.js";
 
 function RegisterPage() {
-
+    const navigate = useNavigate();
     const [formData, setFormData] = useState({
         username: "",
         email: "",
@@ -22,9 +23,17 @@ function RegisterPage() {
         }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log("Registering user:", formData);
+
+        try {
+            await register(formData);
+            console.log("Registered successfully!");
+
+            navigate("/");
+        } catch (err) {
+            console.log("Registration failed:", err);
+        }
     };
 
     return (

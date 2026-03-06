@@ -4,22 +4,23 @@ import "./Auth.css";
 import {useState} from "react";
 import Input from "../../components/ui/Input.jsx";
 import Button from "../../components/ui/Button.jsx";
+import {changePassword} from "../../services/authService.js";
 
-function ResetPasswordPage () {
+function ResetPasswordPage() {
     const [formData, setFormData] = useState({
         password: "",
         confirmPassword: ""
     });
 
     const handleChange = (e) => {
-        const { name, value } = e.target;
+        const {name, value} = e.target;
         setFormData((prev) => ({
             ...prev,
             [name]: value
         }));
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
         if (formData.password !== formData.confirmPassword) {
@@ -27,7 +28,12 @@ function ResetPasswordPage () {
             return;
         }
 
-        console.log("Saving new password:", formData.password);
+        try {
+            await changePassword(formData.password);
+            console.log("Password changed successfully!");
+        } catch (err) {
+            console.error("Failed to change password:", err);
+        }
     };
 
     return (
@@ -36,7 +42,8 @@ function ResetPasswordPage () {
                 <div>
                     <h2>Create New Password</h2>
                     <p>
-                        Choose a password (8-14 characters, using letters & numbers) to keep your account safe and get back to the game.                    </p>
+                        Choose a password (8-14 characters, using letters & numbers) to keep your account safe and get
+                        back to the game. </p>
                 </div>
 
                 <form onSubmit={handleSubmit}>

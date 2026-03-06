@@ -5,13 +5,20 @@ import Button from "../../components/ui/Button.jsx";
 import {useState} from "react";
 
 import "./Auth.css";
+import {forgotPassword} from "../../services/authService.js";
 
 function ForgotPasswordPage() {
     const [email, setEmail] = useState("");
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
-        console.log("Password reset requested for email:", email);
+
+        try {
+            await forgotPassword(email);
+            console.log("Password reset link sent to:", email);
+        } catch (err) {
+            console.log("Failed to request password reset:", err);
+        }
     };
 
     return (
