@@ -10,6 +10,8 @@ import DashboardPage from "./pages/dashboard/DashboardPage.jsx";
 import GameHistoryPage from "./pages/history/GameHistoryPage.jsx";
 import GameDetailsPage from "./pages/history/GameDetailsPage.jsx";
 import JoinRacePage from "./pages/race/JoinRacePage.jsx";
+import VerifyAccountPage from "./pages/auth/VerifyAccountPage.jsx";
+import ChangePasswordPage from "./pages/auth/ChangePasswordPage.jsx";
 
 function App() {
 
@@ -19,7 +21,9 @@ function App() {
                 <Route path="/login" element={<LoginPage/>}/>
                 <Route path="/register" element={<RegisterPage/>}/>
                 <Route path="/forgot-password" element={<ForgotPasswordPage/>}/>
-                <Route path="/reset-password" element={<ResetPasswordPage/>}/>
+                <Route path="/change-password" element={<ChangePasswordPage/>}/>
+                <Route path="/reset-password/:token" element={<ResetPasswordPage/>}/>
+                <Route path="/verify/:token" element={<VerifyAccountPage/>}/>
 
                 <Route path="/race/join" element={<JoinRacePage/>}/>
 

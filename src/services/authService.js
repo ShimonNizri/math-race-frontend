@@ -15,10 +15,25 @@ const forgotPassword = async (email) => {
     return response.data;
 };
 
-const changePassword = async (newPassword) => {
-    // const token = localStorage.getItem('token');
+const verifyAccount = async (token) => {
+    const response = await apiWithOutToken.post('/auth/verify-account', {token});
+    // לשקול לוותר על .DATA ולהחזיר במקום הכל
+    return response.data;
+};
 
-    const response = await apiWithToken().post('/auth/change-password', {password: newPassword});
+
+const resetPassword = async (newPassword,token) => {
+    const response = await apiWithOutToken.post('/auth/reset-password', {
+        token: token,
+        newPassword: newPassword
+    });
+    return response.data;
+};
+
+const changePassword = async (newPassword) => {
+    const response = await apiWithToken.post('/auth/change-password', {
+        newPassword: newPassword
+    });
     return response.data;
 };
 
@@ -26,5 +41,7 @@ export {
     login,
     register,
     forgotPassword,
+    resetPassword,
+    verifyAccount,
     changePassword
 };

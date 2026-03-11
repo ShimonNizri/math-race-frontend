@@ -1,4 +1,5 @@
 import axios from "axios";
+import {cookieService} from "../Services/cookieService.jsx";
 
 const BASE_URL = 'http://localhost:8085/api';
 
@@ -17,12 +18,14 @@ const apiWithToken = axios.create({
 });
 
 apiWithToken.interceptors.request.use((config) => {
-    // const token = localStorage.getItem('token');
-    // if (token) {
-    //     config.headers.Authorization = `Bearer ${token}`;
-    // }
-    // return config;
+    const token = cookieService.getToken();
+
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+    }
     return config;
+}, (error) => {
+    return Promise.reject(error);
 });
 
 export {

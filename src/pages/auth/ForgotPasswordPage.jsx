@@ -9,21 +9,25 @@ import {forgotPassword} from "../../services/authService.js";
 
 function ForgotPasswordPage() {
     const [email, setEmail] = useState("");
+    const [status, setStatus] = useState('Waiting');
 
     const handleSubmit = async (e) => {
         e.preventDefault();
 
         try {
-            await forgotPassword(email);
+            const response = await forgotPassword(email);
+            setStatus(response.message);
             console.log("Password reset link sent to:", email);
         } catch (err) {
             console.log("Failed to request password reset:", err);
+            setStatus(err);
         }
     };
 
     return (
         <>
             <Card className="auth-card">
+                {status === "Waiting" ? <>
                 <h2>Forgot your password?</h2>
                 <p>
                     Don't worry, it happens! Enter your email address below and we'll send you a reset link<br/>
@@ -42,6 +46,9 @@ function ForgotPasswordPage() {
                     />
                     <Button type="submit">Send Reset Link</Button>
                 </form>
+                </> :
+                    <div>{status }</div>
+                }
             </Card>
         </>
     )

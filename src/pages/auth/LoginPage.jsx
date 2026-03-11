@@ -6,6 +6,7 @@ import {Link, useNavigate} from "react-router-dom";
 
 import "./Auth.css";
 import {login} from "../../services/authService.js";
+import {cookieService} from "../../services/cookieService.jsx";
 
 function LoginPage() {
     const navigate = useNavigate();
@@ -26,10 +27,16 @@ function LoginPage() {
         e.preventDefault();
 
         try {
-            await login(formData);
-            console.log("Logged in successfully!");
+            const response = await login(formData);
+            if (response.success === true) {
+                console.log(response);
+                console.log("Logged in successfully!");
+                cookieService.setToken(response.data.token,response.data.dayToSaveToken);
+                navigate("/");
 
-            navigate("/");
+            }else {
+                console.log("Login failed : " + response.message);
+            }
         } catch (err) {
             console.log("Login failed:", err);
         }

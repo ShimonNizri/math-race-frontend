@@ -4,12 +4,11 @@ import "./Auth.css";
 import {useState} from "react";
 import Input from "../../components/ui/Input.jsx";
 import Button from "../../components/ui/Button.jsx";
-import {resetPassword} from "../../services/authService.js";
-import {useNavigate, useParams} from "react-router-dom";
+import {changePassword} from "../../services/authService.js";
+import {useNavigate} from "react-router-dom";
 
-function ResetPasswordPage() {
+function ChangePasswordPage() {
     const navigate = useNavigate();
-    const {token}  = useParams();
     const [status, setStatus] = useState('Waiting');
 
     const [formData, setFormData] = useState({
@@ -34,18 +33,18 @@ function ResetPasswordPage() {
         }
 
         try {
-            const response = await resetPassword(formData.password,token);
+            const response = await changePassword(formData.password);
             if (response.success === true) {
-                setStatus("Password reset successfully!\n\n" + "מיד תועבר לדף ההתחברות..'")
+                setStatus("Password change successfully!\n\n" + "מיד תועבר לדף הבית..'")
                 setTimeout(() => {
-                    navigate('/login');
+                    navigate('/');
                 }, 3000);
             }else {
                 setStatus(response.message);
             }
         } catch (err) {
             console.log(err);
-            setStatus("Failed to reset password");
+            setStatus("Failed to change password");
         }
     };
 
@@ -55,7 +54,7 @@ function ResetPasswordPage() {
                 {status === 'Waiting' ? (
                         <>
                             <div>
-                                <h2>Create New Password</h2>
+                                <h2>Change The Password</h2>
                                 <p>
                                     Choose a password (8-14 characters, using letters & numbers) to keep your account safe
                                     and get
@@ -91,4 +90,4 @@ function ResetPasswordPage() {
     )
 }
 
-export default ResetPasswordPage;
+export default ChangePasswordPage;
