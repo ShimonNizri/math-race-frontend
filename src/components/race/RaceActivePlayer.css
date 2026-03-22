@@ -1,0 +1,18 @@
+/* אנימציה של הבהוב אדום */
+@keyframes blink {
+    0% { opacity: 1; color: red; }
+    50% { opacity: 0.3; color: darkred; }
+    100% { opacity: 1; color: red; }
+}
+
+.blink-red {
+    animation: blink 1s linear infinite;
+    /* מוסיף מסגרת אדומה רק כשהזמן נגמר */
+    border: 2px solid red;
+    border-radius: 8px;
+    padding: 5px;
+}
+
+.timer-container {
+    transition: all 0.3s ease;
+}

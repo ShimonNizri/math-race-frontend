@@ -5,9 +5,9 @@ import RaceLobby from "../../components/race/RaceLobby";
 import RaceResults from "../../components/race/RaceResults";
 import RaceActiveHost from "../../components/race/RaceActiveHost.jsx";
 
-function RaceHostPage({ roomCode , joinToken }) {
+function RaceHostPage({ roomCode , joinToken}) {
     const navigate = useNavigate();
-    const { isConnected, lastMessage, clearLastMessage, error, clearError, sendMessage, subscribe } = useWebSocket();
+    const { isConnected, lastMessage, clearLastMessage, sendMessage, subscribe } = useWebSocket();
     const [raceState, setRaceState] = useState(null);
 
     useEffect(() => {
@@ -21,9 +21,17 @@ function RaceHostPage({ roomCode , joinToken }) {
             } else if (data.type === 'PLAYER_JOINED') {
                 setRaceState(prevState => {
                     if (!prevState) return null;
-                    const isAlreadyIn = prevState.players.some(p => p.id === data.data.player.id);
-                    if (isAlreadyIn) return prevState;
-                    return { ...prevState, players: [...prevState.players, data.data.player] };
+
+                    const isPlayerExists = prevState.players.some(player => player.id === data.data.player.id);
+
+                    if (isPlayerExists) {
+                        return prevState;
+                    }
+
+                    return {
+                        ...prevState,
+                        players: [...prevState.players, data.data.player]
+                    };
                 });
             } else if (data.type === 'PLAYER_CONNECTION') {
                 setRaceState(prevState => {
@@ -31,19 +39,44 @@ function RaceHostPage({ roomCode , joinToken }) {
                     return {
                         ...prevState,
                         players: prevState.players.map(p =>
-                            p.id === data.data.id ? { ...p, online: data.data.online } : p
+                            p.id === data.data.id ? {
+                                ...p,
+                                online: data.data.online,
+                                nickname : data.data.nickname
+                            } : p
                         )
                     };
                 });
-            }else if (data.type === 'RACE_START') {
+            } else if (data.type === 'RACE_START' || data.type === 'RACE_PAUSED' || data.type === 'RACE_RESUMED' ||
+                data.type === 'RACE_CANCELLED') {
                 setRaceState(prevState => {
                     if (!prevState) return null;
                     return {
                         ...prevState,
-                        status: "IN_PROGRESS"
+                        status: data.data.status
                     }
                 })
-
+            } else if (data.type === 'RACE_COMPLETED'){
+                setRaceState(prevState => {
+                    if (!prevState) return null;
+                    return {
+                        ...prevState,
+                        status: data.data.status,
+                        players: data.data.players
+                    }
+                })
+            }else if (data.type === 'PLAYER_ANSWERED_CORRECTLY' || data.type === 'PLAYER_ANSWERED_INCORRECTLY' || data.type === 'PLAYER_TIMEOUT') {
+                setRaceState(prevState => {
+                    if (!prevState) return null;
+                    return {
+                        ...prevState,
+                        players: prevState.players.map(p =>
+                            p.id === data.data.playerId ? {
+                                ...p,
+                                currentScore: p.currentScore + data.data.score,
+                            } : p)
+                        };
+                });
             }
         },joinToken);
 
