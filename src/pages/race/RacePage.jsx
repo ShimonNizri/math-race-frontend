@@ -28,7 +28,6 @@ function RacePage() {
                 } else {
                     alert(response.message);
                     navigate('/');
-                    console.log("1")
                 }
             }
         } catch (err) {
@@ -49,7 +48,7 @@ function RacePage() {
 
     useEffect(() => {
         if (isConnected && userRole === 'Waiting') {
-            
+
             Promise.resolve().then(() => {
                 checkInfo();
             });

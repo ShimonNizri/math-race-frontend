@@ -1,6 +1,5 @@
 import React, { memo, useState, useEffect } from 'react';
 import Button from "../ui/Button.jsx";
-import "../race/RaceActivePlayer.css";
 
 function RaceActivePlayer({ raceState, accountId , onAnswerQuestion}) {
     const player = raceState.players.find(p => p.id === accountId);
