@@ -20,13 +20,8 @@ const PlayerCard = memo(({player}) => {
 
     return (
         <div className="player-badge">
-            <div className="player-avatar-wrapper">
-                <div className="player-avatar">
-                    {player.nickname.substring(0, 1).toUpperCase()}
-                </div>
-                <div className={`status-dot ${isOnline ? 'online' : 'offline'}`}></div>
-            </div>
-            <span>{player.nickname}</span>
+            <span className="player-name">{player.nickname}</span>
+            <div className={`status-dot ${isOnline ? 'online' : 'offline'}`}></div>
         </div>
     );
 });
