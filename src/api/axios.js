@@ -18,16 +18,15 @@ const apiWithToken = axios.create({
 });
 
 apiWithToken.interceptors.request.use((config) => {
-    const token = cookieService.getToken();
-    const guest_id = cookieService.getGuestID();
+    const auth_token = cookieService.getAuthToken();
+    const guest_token = cookieService.getGuestToken();
 
-
-    if (token) {
-        config.headers.Authorization = `Bearer ${token}`;
+    if (auth_token) {
+        config.headers.Authorization = `Bearer ${auth_token}`;
     }
 
-    if (guest_id){
-        config.headers.GuestID = guest_id;
+    if (guest_token){
+        config.headers.GuestToken = guest_token;
     }
 
     return config;

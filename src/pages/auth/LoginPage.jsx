@@ -32,6 +32,7 @@ function LoginPage() {
             if (response.success === true) {
                 console.log(response);
                 console.log("Logged in successfully!");
+                console.log(response.data);
                 updateToken(response.data.token, response.data.dayToSaveToken);
                 navigate("/");
             } else {

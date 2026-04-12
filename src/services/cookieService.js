@@ -1,12 +1,12 @@
 import Cookies from 'js-cookie';
 
-const TOKEN_KEY = 'auth_token';
-const GUEST_ID_KEY = 'guest_id';
+const AUTH_TOKEN_KEY = 'auth_token';
+const GUEST_TOKEN_KEY = 'guest_token';
 
 export const cookieService = {
 
-    setToken: (token, days) => {
-        Cookies.set(TOKEN_KEY, token, {
+    setAuthToken: (token, days) => {
+        Cookies.set(AUTH_TOKEN_KEY, token, {
             expires: days,
             secure: true,
             sameSite: 'strict',
@@ -14,16 +14,16 @@ export const cookieService = {
         });
     },
 
-    getToken: () => {
-        return Cookies.get(TOKEN_KEY);
+    getAuthToken: () => {
+        return Cookies.get(AUTH_TOKEN_KEY);
     },
 
-    removeToken: () => {
-        Cookies.remove(TOKEN_KEY);
+    removeAuthToken: () => {
+        Cookies.remove(AUTH_TOKEN_KEY);
     },
 
-    setGuestID: (guestID, days) => {
-        Cookies.set(GUEST_ID_KEY, guestID, {
+    setGuestToken: (guestID, days) => {
+        Cookies.set(GUEST_TOKEN_KEY, guestID, {
             expires: days,
             secure: true,
             sameSite: 'strict',
@@ -31,11 +31,11 @@ export const cookieService = {
         });
     },
 
-    getGuestID: () => {
-        return Cookies.get(GUEST_ID_KEY);
+    getGuestToken: () => {
+        return Cookies.get(GUEST_TOKEN_KEY);
     },
 
-    removeGuestID: () => {
-        Cookies.remove(GUEST_ID_KEY);
+    removeGuestToken: () => {
+        Cookies.remove(GUEST_TOKEN_KEY);
     }
 };

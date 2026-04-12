@@ -2,25 +2,26 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Client } from '@stomp/stompjs';
 import { WebSocketContext } from './WebSocketContext.js';
 import { cookieService } from '../cookieService.js';
-import {createGuestId} from "../authService.js";
+import {createGuestToken} from "../authService.js";
 
 function WebSocketProvider({ children }) {
     const [isConnected, setIsConnected] = useState(false);
     const [lastMessage, setLastMessage] = useState(null);
     const [error, setError] = useState(null);
-    const [token, setToken] = useState(cookieService.getToken());
-    const [guestID, setGuestID] = useState(cookieService.getGuestID());
+    const [authToken, setAuthToken] = useState(cookieService.getAuthToken());
+    const [guestToken, setGuestToken] = useState(cookieService.getGuestToken());
 
     const clientRef = useRef(null);
     const hasRecovered = useRef(false);
 
-    const updateToken = useCallback((newToken,dayToSave) => {
+    const updateAuthToken = useCallback((newToken, dayToSave) => {
         if (newToken) {
-            cookieService.setToken(newToken, dayToSave);
+            console.log("New Auth-Token Update", newToken);
+            cookieService.setAuthToken(newToken, dayToSave);
         } else {
-            cookieService.removeToken();
+            cookieService.removeAuthToken();
         }
-        setToken(newToken);
+        setAuthToken(newToken);
     }, []);
 
     const clearError = useCallback(() => {
@@ -30,25 +31,26 @@ function WebSocketProvider({ children }) {
         setLastMessage(null);
     }, []);
 
-    const updateGuestID = useCallback((newGuestID,dayToSave) => {
-        if (newGuestID) {
-            cookieService.setGuestID(newGuestID, dayToSave);
+    const updateGuestToken = useCallback((newGuestToken,dayToSave) => {
+        if (newGuestToken) {
+            console.log("New Guest-Token Update", newGuestToken);
+            cookieService.setGuestToken(newGuestToken, dayToSave);
         } else {
-            cookieService.removeGuestID();
+            cookieService.removeGuestToken();
         }
-        setGuestID(newGuestID);
+        setGuestToken(newGuestToken);
     }, []);
 
 
 
     useEffect(() => {
-        //if (!token && !guestID) return;
+        //if (!authToken && !guestToken) return;
 
         const client = new Client({
             brokerURL: 'ws://localhost:8085/api/ws-race',
             connectHeaders: {
-                Authorization: token ? `Bearer ${token}` : '',
-                GuestID: guestID || ''
+                Authorization: authToken ? `Bearer ${authToken}` : '',
+                GuestToken: guestToken || ''
             },
             reconnectDelay: 5000,
             heartbeatIncoming: 4000,
@@ -65,7 +67,7 @@ function WebSocketProvider({ children }) {
                     const data = JSON.parse(message.body);
 
                     if (data.type === 'ERROR') {
-                        setError(data.content);
+                        setError(data.content + " מפה 4 ");
                     } else {
                         setLastMessage(data);
                     }
@@ -82,17 +84,18 @@ function WebSocketProvider({ children }) {
                 setIsConnected(false);
 
                 if (!hasRecovered.current && (errorMsg === "MISSING_IDENTIFICATION" || errorMsg === "AUTH_FAILED")) {
+                    console.log(errorMsg);
                     console.log("Recovering directly from error event...");
                     try {
-                        const response = await createGuestId();
+                        const response = await createGuestToken();
 
                         if (response.success) {
-                            updateGuestID(response.data.guestId,response.data.dayToSave);
-                            updateToken(null,null);
+                            updateGuestToken(response.data.guestToken,response.data.dayToSave);
+                            updateAuthToken(null,null);
                             setError(null);
-                            console.log("Recovered successfully with Guest ID:", response.data.guestId);
+                            console.log("Recovered successfully with Guest ID:", response.data.guestToken);
                         } else {
-                            setError(errorMsg);
+                            setError(errorMsg + " מפה 2 ");
                         }
                     } catch (err) {
                         console.error("Failed to fetch Guest ID:", err);
@@ -104,8 +107,11 @@ function WebSocketProvider({ children }) {
             },
             onWebSocketClose: (event) => {
                 if (event.reason && event.reason.startsWith("DUPLICATE_RACE_CONNECTION")) {
-                    setError(event.reason);
+                    setError(event.reason + " מפה 3 ");
                 }
+
+                console.log("WS WebSocket Closed!");
+
                 setIsConnected(false);
             },
         });
@@ -119,7 +125,7 @@ function WebSocketProvider({ children }) {
                 setIsConnected(false);
             }
         };
-    }, [token, guestID]);
+    }, [authToken, guestToken]);
 
     const sendMessage = useCallback((destination, body) => {
         if (clientRef.current && isConnected) {
@@ -156,7 +162,7 @@ function WebSocketProvider({ children }) {
             clearError,
             sendMessage,
             subscribe,
-            updateToken
+            updateAuthToken
         }}>
             {children}
         </WebSocketContext.Provider>

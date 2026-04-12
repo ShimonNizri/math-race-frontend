@@ -17,10 +17,8 @@ const forgotPassword = async (email) => {
 
 const verifyAccount = async (token) => {
     const response = await apiWithOutToken.post('/auth/verify-account', {token});
-    // לשקול לוותר על .DATA ולהחזיר במקום הכל
     return response.data;
 };
-
 
 const resetPassword = async (newPassword,token) => {
     const response = await apiWithOutToken.post('/auth/reset-password', {
@@ -37,8 +35,8 @@ const changePassword = async (newPassword) => {
     return response.data;
 };
 
-const createGuestId = async () => {
-    const response = await apiWithOutToken.post('/auth/create-guestId');
+const createGuestToken = async () => {
+    const response = await apiWithOutToken.post('/auth/create-guestToken');
     return response.data;
 };
 
@@ -49,5 +47,5 @@ export {
     resetPassword,
     verifyAccount,
     changePassword,
-    createGuestId,
+    createGuestToken,
 };

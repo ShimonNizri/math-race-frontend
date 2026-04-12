@@ -10,6 +10,7 @@ import { ALERT_TYPES, AlertModal } from "../../components/ui/AlertModal.jsx";
 import { ClipLoader } from "react-spinners";
 import logo from "../../assets/logo.png";
 import './RaceForms.css';
+import {useWebSocket} from "../../services/webSocket/WebSocketContext.js";
 
 const INITIAL_STATE = {
     name: "",
@@ -22,6 +23,7 @@ function CreateRacePage() {
     const [formData, setFormData] = useState(INITIAL_STATE);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [alert, setAlert] = useState(null);
+    const { clearError, clearLastMessage } = useWebSocket();
 
     useEffect(() => {
         if (!alert) return;
@@ -51,6 +53,9 @@ function CreateRacePage() {
 
         if (isSubmitting) return;
         setIsSubmitting(true);
+
+        clearError();
+        clearLastMessage();
 
         try {
             const response = await createRace(formData);

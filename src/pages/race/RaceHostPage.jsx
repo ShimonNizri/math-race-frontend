@@ -16,6 +16,7 @@ function RaceHostPage({roomCode, joinToken}) {
         const queue = `/user/queue/race/host`;
 
         const unsubscribe = subscribe(queue, (data) => {
+            console.log("קיבלנו הודעה חדשה מהסוקט:", data);
             if (data.type === 'RACE_FULL_STATE') {
                 setRaceState(data.data);
             } else if (data.type === 'PLAYER_JOINED') {

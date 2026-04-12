@@ -63,11 +63,17 @@ function RacePage() {
         </div>
     );
 
+    useEffect(() => {
+        return () => {
+            clearError();
+        };
+    }, [clearError]);
+
     if (error) {
         return renderLoading("Disconnecting...")
     }
 
-    if (!isConnected) {
+    if (!isConnected && userRole === 'Waiting') {
         return renderLoading("Connecting...")
     }
 
