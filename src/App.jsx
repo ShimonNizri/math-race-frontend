@@ -14,8 +14,15 @@ import CreateRacePage from "./pages/race/CreateRacePage.jsx";
 import RacePage from "./pages/race/RacePage.jsx";
 import GameHistoryPage from "./pages/history/GameHistoryPage.jsx";
 import GameDetailsPage from "./pages/history/GameDetailsPage.jsx";
+import ProfilePage from "./pages/profile/ProfilePage.jsx";
+import ManageProfileLayout from "./pages/ManageProfileLayout.jsx";
 
 function App() {
+
+    const user = {
+        email: "exemple@example.com",
+        username: "Jon walker",
+    }
 
     return (
         <WebSocketProvider>
@@ -31,7 +38,6 @@ function App() {
                         <Route path={"verify/:token"} element={<VerifyAccountPage/>}/>
                     </Route>
 
-                    <Route path={"/history"} element={<GameHistoryPage/>}/>
                     <Route path={"/history/:gameId"} element={<GameDetailsPage/>}/>
 
                     <Route path={"/race"}>
@@ -41,7 +47,12 @@ function App() {
                     </Route>
 
                     <Route element={<MainLayout/>}>
-                        <Route path={"/"} element={<DashboardPage/>}/>
+                        <Route path={"/"} element={<DashboardPage user={user}/>}/>
+                        <Route path={"/manage-profile"} element={<ManageProfileLayout/>}>
+                            <Route index element={<ProfilePage user={user}/>}/>
+                            <Route path="history" element={<GameHistoryPage/>}/>
+
+                        </Route>
                     </Route>
                 </Routes>
             </BrowserRouter>

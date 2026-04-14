@@ -14,16 +14,16 @@
 
 /* Header & Timer */
 .race-header {
-    /*flex-shrink: 0;*/
-    /*display: flex;*/
-    /*justify-content: space-between;*/
-    /*padding: 12px 20px;*/
-    /*background: var(--bg);*/
-    /*border: 1px solid var(--border);*/
-    /*border-radius: 12px;*/
-    /*box-shadow: var(--shadow);*/
-    /*font-size: 1.2rem;*/
-    /*color: var(--text-h);*/
+    flex-shrink: 0;
+    display: flex;
+    justify-content: space-between;
+    padding: 12px 20px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    font-size: 1.2rem;
+    color: var(--text-h);
 
     flex-shrink: 0;
     display: flex;

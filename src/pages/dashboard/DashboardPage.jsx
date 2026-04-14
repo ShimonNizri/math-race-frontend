@@ -7,17 +7,11 @@ import ProfileModal from "../profile/ProfileModal.jsx";
 
 import logo from '../../assets/logo.png';
 import './Dashboard.css';
-import {ALERT_TYPES} from "../../components/ui/AlertModal.jsx";
 
-function DashboardPage() {
+function DashboardPage({user}) {
     const navigate = useNavigate();
 
     const [isProfileOpen, setIsProfileOpen] = useState(false);
-
-    const user = {
-        email: "exemple@example.com",
-        username: "Jon walker",
-    }
 
     const handleSubmit = (e) => {
         navigate("/race/" + e.target.name);
