@@ -1,6 +1,3 @@
-/* =========================================
-   מניעת גלילה מוחלטת
-   ========================================= */
 .race-layout-container {
     width: 100%;
     max-width: 900px;
@@ -11,25 +8,28 @@
     display: flex;
     flex-direction: column;
     gap: 15px;
-    direction: rtl;
     overflow: hidden;
     box-sizing: border-box;
 }
 
+/* Header & Timer */
 .race-header {
+    /*flex-shrink: 0;*/
+    /*display: flex;*/
+    /*justify-content: space-between;*/
+    /*padding: 12px 20px;*/
+    /*background: var(--bg);*/
+    /*border: 1px solid var(--border);*/
+    /*border-radius: 12px;*/
+    /*box-shadow: var(--shadow);*/
+    /*font-size: 1.2rem;*/
+    /*color: var(--text-h);*/
+
     flex-shrink: 0;
     display: flex;
     justify-content: space-between;
-    padding: 12px 20px;
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    box-shadow: var(--shadow);
-    font-size: 1.2rem;
-    color: var(--text-h);
 }
 
-/* טיימר */
 .timer-wrapper {
     flex-shrink: 0;
     width: 100%;
@@ -64,11 +64,7 @@
 }
 
 .timer-bar.critical { background: var(--red); }
-.text-critical { color: var(--red); animation: pulse-text 1s infinite; }
 
-/* =========================================
-   כרטיס דינמי עם סיבוב רציף
-   ========================================= */
 .flip-card-container {
     perspective: 1500px;
     width: 100%;
@@ -76,47 +72,38 @@
     min-height: 200px;
     position: relative;
     z-index: 10;
-    display: flex;
-    flex-direction: column;
 }
 
 .flip-card-inner {
     position: relative;
     width: 100%;
-    flex: 1;
+    height: 100%;
     transition: transform 0.6s cubic-bezier(0.4, 0.2, 0.2, 1);
     transform-style: preserve-3d;
 }
 
-/* שני צידי הכרטיס */
 .flip-card-face {
     position: absolute;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    -webkit-backface-visibility: hidden;
     backface-visibility: hidden;
     background: var(--bg);
-    border: 2px solid var(--border);
+    border: 4px solid var(--border); /* matching game-card */
     border-radius: 20px;
-    box-shadow: var(--shadow);
+    box-shadow: 0 8px 0 var(--border); /* matching game-card */
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     padding: 30px 40px;
     box-sizing: border-box;
-    overflow-y: auto;
 }
 
-/* הצד הקדמי (0 מעלות) והצד האחורי (180 מעלות) */
 .face-0 { transform: rotateY(0deg); }
 .face-1 { transform: rotateY(180deg); }
 
-/* =========================================
-   תגיות על הכרטיס (מסתובבות איתו)
-   ========================================= */
 .track-state-badge {
     position: absolute;
     top: 0;
@@ -126,60 +113,42 @@
     padding: 6px 25px;
     border-radius: 0 0 15px 15px;
     font-weight: 800;
-    font-size: 1.1rem;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
+    font-size: 1rem;
     z-index: 5;
     white-space: nowrap;
-}
-
-.points-tag {
-    position: absolute;
-    bottom: 20px;
-    left: 20px;
-    background: var(--accent-bg);
-    color: var(--accent);
-    padding: 6px 16px;
-    border-radius: 30px;
-    font-weight: 800;
-    font-size: 1.1rem;
-    border: 1px solid var(--accent-border);
 }
 
 .question-text {
     color: var(--text-h);
     font-weight: 900;
     text-align: center;
-    width: 100%;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-    font-size: clamp(1.5rem, min(5vw, 5vh), 4rem);
-    line-height: 1.3;
+    font-size: clamp(1.5rem, min(5vw, 5vh), 3.5rem);
+    line-height: 1.2;
+    direction: rtl;
 }
 
-/* =========================================
-   עיצוב התוכן בתוך גב הכרטיס (פידבק / חזרה למסלול)
-   ========================================= */
-.feedback-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 15px;
-}
+.points-tag {
+    position: absolute;
+    bottom: 15px;
+    left: 15px;
 
-.returned-track-msg {
-    font-size: clamp(2rem, 5vw, 3.5rem);
-    font-weight: 900;
+    background-color: rgb(59,130,246,0.15);
     color: var(--blue);
-    text-align: center;
-    line-height: 1.3;
+    border: 2px solid var(--blue);
+    padding: 5px 10px;
+    border-radius: 50px;
+
+    font-weight: 900;
+    font-size: 0.9rem;
+    font-family: var(--mono);
+    box-shadow: 2px 2px 0px rgba(59, 130, 246, 0.2);
+    user-select: none;
+    z-index: 5;
 }
 
-/* =========================================
-   כפתורי תשובה רספונסיביים
-   ========================================= */
 .options-wrapper {
-    height: 35vh;
-    min-height: 180px;
+    height: 30vh;
+    min-height: 160px;
     flex-shrink: 0;
 }
 
@@ -195,37 +164,57 @@
 .option-btn {
     width: 100%;
     height: 100%;
-    padding: 10px;
-    font-size: clamp(1.5rem, 4vw, 2.2rem);
-    border-radius: 16px;
+    border-radius: 12px;
     border: none;
-    color: white;
-    font-weight: 800;
+    color: #fff;
+    font-weight: 900;
+    font-size: clamp(1.2rem, 3vw, 1.8rem);
     cursor: pointer;
-    transition: transform 0.2s, filter 0.2s;
+    transition: all 0.1s ease;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     font-family: var(--sans);
-    box-shadow: 0 6px 0 rgba(0,0,0,0.2);
 }
 
-.option-btn:hover:not(:disabled) { filter: brightness(1.15); transform: translateY(-2px); }
-.option-btn:active:not(:disabled) { transform: translateY(6px); box-shadow: none; }
-.option-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+.option-btn:hover:not(:disabled) {
+    transform: translateY(-4px);
+}
 
-.bg-red { background-color: var(--red); }
-.bg-blue { background-color: var(--blue); }
-.bg-green { background-color: var(--green); }
-.bg-yellow { background-color: var(--yellow); color: var(--text-h); }
+.option-btn:active:not(:disabled) {
+    transform: translateY(6px);
+    box-shadow: 0 0px 0 transparent !important;
+}
 
-.bg-autostrada { background-color: #7f1d1d; }
-.bg-dirtroad { background-color: #b45309; }
-.btn-desc { font-size: clamp(0.9rem, 2vw, 1.1rem); font-weight: 600; margin-top: 5px; opacity: 0.9; }
+.option-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.bg-blue   { background-color: var(--blue);   box-shadow: 0 6px 0 #1d4ed8; }
+.bg-green  { background-color: var(--green);  box-shadow: 0 6px 0 #15803d; }
+.bg-red    { background-color: var(--red);    box-shadow: 0 6px 0 #b91c1c; }
+.bg-yellow { background-color: var(--yellow); box-shadow: 0 6px 0 #d97706; }
+
+.option-btn:hover.bg-blue:not(:disabled)   { box-shadow: 0 10px 0 #1d4ed8; }
+.option-btn:hover.bg-green:not(:disabled)  { box-shadow: 0 10px 0 #15803d; }
+.option-btn:hover.bg-red:not(:disabled)    { box-shadow: 0 10px 0 #b91c1c; }
+.option-btn:hover.bg-yellow:not(:disabled) { box-shadow: 0 10px 0 #d97706; }
+
+.btn-desc { font-size: 0.9rem; font-weight: 600; margin-top: 4px; opacity: 0.9; }
+
+.feedback-content {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+}
 
 .feedback-status { font-size: clamp(2.5rem, 6vw, 4rem); font-weight: 900; text-align: center;}
 .feedback-score-anim { font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 900; text-align: center;}
+
 .text-positive { color: var(--green); }
 .text-negative { color: var(--red); }
-.text-neutral { color: var(--text); }

@@ -1,0 +1,146 @@
+.race-host-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 0 auto;
+    height: 100dvh;
+    padding: 15px 25px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    font-family: var(--sans);
+    box-sizing: border-box;
+    overflow: hidden;
+}
+
+.host-header {
+    flex-shrink: 0;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: var(--bg);
+    border: 3px solid var(--border);
+    border-radius: 15px;
+    padding: 12px 30px;
+    box-shadow: 0 5px 0 var(--border);
+}
+
+.host-header h1 {
+    margin: 0;
+    font-size: 1.6rem;
+    color: var(--text-h);
+}
+
+.target-info {
+    font-weight: 800;
+    color: var(--blue);
+}
+
+.finish-btn {
+    background-color: var(--red);
+    color: white;
+    border: none;
+    padding: 8px 20px;
+    border-radius: 10px;
+    font-weight: 900;
+    cursor: pointer;
+    box-shadow: 0 4px 0 #b91c1c;
+    transition: all 0.1s;
+}
+
+.finish-btn:active {
+    transform: translateY(3px);
+    box-shadow: 0 1px 0 #b91c1c;
+}
+
+.tracks-wrapper {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    gap: 10px;
+}
+
+.track-container {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    justify-content: center;
+}
+
+.track-title {
+    margin: 0 0 8px 10px;
+    font-weight: 800;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    color: var(--text);
+    letter-spacing: 1px;
+}
+
+.road-visual {
+    position: relative;
+    height: 50px;
+    background-color: #1a1a1a;
+    border: 3px solid var(--border);
+    border-radius: 50px;
+    box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    width: 100%;
+}
+
+.road-divider {
+    position: absolute;
+    width: 100%;
+    height: 1px;
+    border-top: 1px dashed rgba(255, 255, 255, 0.2);
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.finish-line {
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 25px;
+    height: 100%;
+    background-color: #000;
+    background-image:
+            linear-gradient(45deg, #fff 25%, transparent 25%),
+            linear-gradient(-45deg, #fff 25%, transparent 25%),
+            linear-gradient(45deg, transparent 75%, #fff 75%),
+            linear-gradient(-45deg, transparent 75%, #fff 75%);
+    background-size: 8px 8px; /* קטן יותר כדי להתאים */
+    background-position: 0 0, 0 4px, 4px -4px, -4px 0px;
+    border-left: 2px solid var(--border);
+}
+
+.player-node {
+    position: absolute;
+    top: 50%;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 900;
+    color: white;
+    border: 2px solid white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+    transition: left 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+    z-index: 10;
+    font-size: 0.75rem;
+}
+
+.players-track-area {
+    position: relative;
+    width: calc(100% - 80px);
+    margin: 0 40px;
+    height: 100%;
+}
+
+
+
+.autostrada .player-node { background-color: var(--red); }
+.regular .player-node { background-color: var(--blue); }
+.dirt_road .player-node { background-color: var(--green); }

@@ -4,18 +4,17 @@ import './RaceActivePlayer.css';
 const BUTTON_COLORS = ['bg-red', 'bg-blue', 'bg-green', 'bg-yellow'];
 
 const TRACK_INFO = {
-    REGULAR: { text: "מסלול רגיל", icon: "🛣️", color: "var(--blue)" },
-    WAITING_FOR_CHOICE: { text: "צומת דרכים", icon: "🔀", color: "var(--yellow)" },
-    AUTOSTRADA: { text: "אוטוסטרדה", icon: "🏎️", color: "var(--red)" },
-    DIRT_ROAD: { text: "דרך עפר", icon: "🚜", color: "var(--green)" }
+    REGULAR: { text: "Regular Track", color: "var(--blue)" },
+    WAITING_FOR_CHOICE: { text: "Crossroads", color: "var(--yellow)" },
+    AUTOSTRADA: { text: "Highway", color: "var(--red)" },
+    DIRT_ROAD: { text: "Dirt Road", color: "var(--green)" }
 };
 
-// תגית המסלול שמודפסת על הכרטיס ומסתובבת איתו
 const TrackBadge = ({ trackState, currentQ, totalQ }) => {
     const info = TRACK_INFO[trackState] || TRACK_INFO.REGULAR;
     return (
         <div className="track-state-badge" style={{ backgroundColor: info.color }}>
-            {info.icon} {info.text}
+            {info.text}
             {currentQ && totalQ ? ` (${currentQ}/${totalQ})` : ''}
         </div>
     );
@@ -28,7 +27,6 @@ function RaceActivePlayer({ raceState, accountId, onAnswerQuestion, onChooseJunc
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [timeLeft, setTimeLeft] = useState(0);
 
-    // --- מעקב אחרי סטייט כדי לייצר אירועים ---
     const [isJustReturned, setIsJustReturned] = useState(false);
     const [scoreDiff, setScoreDiff] = useState(0);
     const [feedbackType, setFeedbackType] = useState('neutral');
@@ -37,7 +35,6 @@ function RaceActivePlayer({ raceState, accountId, onAnswerQuestion, onChooseJunc
     const prevTrackRef = useRef(player?.trackState);
     const prevScoreRef = useRef(player?.currentScore || 0);
 
-    // חישוב פידבק ברגע שהשאלה נעלמת
     useEffect(() => {
         if (prevEventRef.current && !activeEvent) {
             const diff = (player?.currentScore || 0) - prevScoreRef.current;
@@ -51,7 +48,6 @@ function RaceActivePlayer({ raceState, accountId, onAnswerQuestion, onChooseJunc
         prevScoreRef.current = player?.currentScore || 0;
     }, [activeEvent, player?.currentScore, isSubmitting]);
 
-    // זיהוי חזרה למסלול הרגיל
     useEffect(() => {
         if (player?.trackState === 'REGULAR' && prevTrackRef.current && prevTrackRef.current !== 'REGULAR' && prevTrackRef.current !== 'WAITING_FOR_CHOICE') {
             setIsJustReturned(true);
@@ -59,7 +55,6 @@ function RaceActivePlayer({ raceState, accountId, onAnswerQuestion, onChooseJunc
         prevTrackRef.current = player?.trackState;
     }, [player?.trackState]);
 
-    // איפוס מצבים כשיש אירוע חדש
     useEffect(() => {
         if (activeEvent) {
             setIsJustReturned(false);
@@ -67,7 +62,6 @@ function RaceActivePlayer({ raceState, accountId, onAnswerQuestion, onChooseJunc
         }
     }, [activeEvent]);
 
-    // טיימר ויזואלי
     useEffect(() => {
         if (!activeEvent || activeEvent.questionRemainingTimeMillis == null) return;
         const endTime = Date.now() + activeEvent.questionRemainingTimeMillis;
@@ -79,19 +73,16 @@ function RaceActivePlayer({ raceState, accountId, onAnswerQuestion, onChooseJunc
         return () => clearInterval(intervalId);
     }, [activeEvent]);
 
-    // --- לוגיקת סיבוב רציף לפי אירועים בלבד ---
     const [flipCount, setFlipCount] = useState(0);
     const [faces, setFaces] = useState({
         face0: { type: 'QUESTION', data: activeEvent, track: player?.trackState },
         face1: null
     });
 
-    // קובע מה סוג התצוגה שצריכה להיות עכשיו
     let targetType = 'FEEDBACK';
     if (activeEvent) targetType = 'QUESTION';
     else if (isJustReturned) targetType = 'RETURN_TRACK';
 
-    // מייצר ID ייחודי לסטייט הנוכחי. ברגע שה-ID משתנה -> מסתובב!
     const targetStateId = activeEvent ? `Q-${activeEvent.expression}` : (isJustReturned ? 'RETURN' : 'FEEDBACK');
     const [currentFaceId, setCurrentFaceId] = useState(targetStateId);
 
@@ -114,9 +105,8 @@ function RaceActivePlayer({ raceState, accountId, onAnswerQuestion, onChooseJunc
         }
     }, [targetStateId, targetType, activeEvent, player?.trackState, player?.totalTrackQuestions, player?.specialQuestionsRemaining, flipCount, currentFaceId]);
 
-    if (!player) return <div>טוען נתונים...</div>;
+    if (!player) return <div>Loading data...</div>;
 
-    // עזרים לתצוגה
     const remainingSeconds = Math.ceil(timeLeft / 1000);
     const formattedMinutes = String(Math.floor(remainingSeconds / 60)).padStart(2, '0');
     const formattedSeconds = String(remainingSeconds % 60).padStart(2, '0');
@@ -126,7 +116,6 @@ function RaceActivePlayer({ raceState, accountId, onAnswerQuestion, onChooseJunc
     const isQuestionActive = targetType === 'QUESTION';
     const isJunctionView = !!activeEvent?.offer1;
 
-    // פונקציה שמרנדרת את התוכן של הכרטיס לפי המצב שלו
     const renderFace = (content) => {
         if (!content) return null;
 
@@ -136,7 +125,7 @@ function RaceActivePlayer({ raceState, accountId, onAnswerQuestion, onChooseJunc
                 <>
                     <TrackBadge trackState={content.track} currentQ={content.currentQ} totalQ={content.totalQ} />
                     {!isJunc && content.data?.score && (
-                        <div className="points-tag">{content.data.score} נק'</div>
+                        <div className="points-tag">{content.data.score} pts</div>
                     )}
                     <div className="question-text">{content.data?.expression}</div>
                 </>
@@ -148,7 +137,7 @@ function RaceActivePlayer({ raceState, accountId, onAnswerQuestion, onChooseJunc
                 <>
                     <TrackBadge trackState="REGULAR" />
                     <div className="returned-track-msg">
-                        הדרך המיוחדת הסתיימה.<br/>חזרת למסלול הראשי! 🛣️
+                        The special track has ended.<br/>You returned to the main track!
                     </div>
                 </>
             );
@@ -159,11 +148,11 @@ function RaceActivePlayer({ raceState, accountId, onAnswerQuestion, onChooseJunc
                 <TrackBadge trackState={content.track} currentQ={content.currentQ} totalQ={content.totalQ} />
                 <div className="feedback-content">
                     {feedbackType === 'junction-chosen' ? (
-                        <div className="feedback-status text-neutral">🚗 מתכונן למסלול...</div>
+                        <div className="feedback-status text-neutral">Preparing for track...</div>
                     ) : (
                         <>
                             <div className={`feedback-status text-${feedbackType}`}>
-                                {feedbackType === 'positive' ? 'נכון מאוד!' : feedbackType === 'negative' ? 'טעות' : 'נגמר הזמן'}
+                                {feedbackType === 'positive' ? 'Correct!' : feedbackType === 'negative' ? 'Wrong' : "Time's up"}
                             </div>
                             <div className={`feedback-score-anim text-${feedbackType}`}>
                                 {scoreDiff > 0 ? `+${scoreDiff}` : scoreDiff}
@@ -178,14 +167,14 @@ function RaceActivePlayer({ raceState, accountId, onAnswerQuestion, onChooseJunc
     return (
         <div className="race-layout-container">
             <header className="race-header">
-                <div>יעד: <strong>{raceState.targetScore}</strong></div>
-                <div>{player.nickname} | ניקוד: <strong style={{color: 'var(--blue)'}}>{player.currentScore}</strong></div>
+                <div>{player.nickname}</div>
+                <div>Score: <strong>{player.currentScore} / {raceState.targetScore}</strong></div>
             </header>
 
             <div style={{ visibility: isQuestionActive ? 'visible' : 'hidden' }}>
                 <div className="timer-wrapper">
                     <div className="timer-labels">
-                        <span className="timer-title">זמן נותר:</span>
+                        <span className="timer-title">Time Left:</span>
                         <span className={`timer-clock ${isCriticalTime ? 'text-critical' : ''}`}>
                             {formattedMinutes}:{formattedSeconds}
                         </span>
@@ -196,7 +185,6 @@ function RaceActivePlayer({ raceState, accountId, onAnswerQuestion, onChooseJunc
                 </div>
             </div>
 
-            {/* כרטיס שמסתובב ברציפות לצד אחד לפי מספר הסיבובים */}
             <div className="flip-card-container">
                 <div className="flip-card-inner" style={{ transform: `rotateY(${flipCount * 180}deg)` }}>
                     <div className="flip-card-face face-0">
@@ -213,13 +201,13 @@ function RaceActivePlayer({ raceState, accountId, onAnswerQuestion, onChooseJunc
                     <div className="options-grid">
                         {isJunctionView ? (
                             <>
-                                <button className="option-btn bg-autostrada" disabled={isSubmitting || timeLeft <= 0} onClick={() => { setIsSubmitting(true); onChooseJunction(activeEvent.offer1); }}>
-                                    אוטוסטרדה
-                                    <span className="btn-desc">סיכון גבוה, התקדמות מהירה</span>
+                                <button className="option-btn bg-red" disabled={isSubmitting || timeLeft <= 0} onClick={() => { setIsSubmitting(true); onChooseJunction(activeEvent.offer1); }}>
+                                    Highway
+                                    <span className="btn-desc">High risk, fast progress</span>
                                 </button>
-                                <button className="option-btn bg-dirtroad" disabled={isSubmitting || timeLeft <= 0} onClick={() => { setIsSubmitting(true); onChooseJunction(activeEvent.offer2); }}>
-                                    דרך עפר
-                                    <span className="btn-desc">בטוח ויציב</span>
+                                <button className="option-btn bg-green" disabled={isSubmitting || timeLeft <= 0} onClick={() => { setIsSubmitting(true); onChooseJunction(activeEvent.offer2); }}>
+                                    Dirt Road
+                                    <span className="btn-desc">Safe and steady</span>
                                 </button>
                             </>
                         ) : (
