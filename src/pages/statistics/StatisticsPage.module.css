@@ -1,0 +1,103 @@
+.statisticsContainer {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 40px;
+    align-items: center;
+}
+
+.statisticsTitle {
+    margin: 0;
+    font-size: 40px;
+    font-weight: 900;
+    color: var(--text-h);
+    width: 100%;
+    text-align: center;
+}
+
+.statsGridContainer {
+    width: 100%;
+    display: flex; /* שינינו מ-grid ל-flex */
+    flex-wrap: wrap; /* מאפשר לפריטים לרדת שורה */
+    justify-content: center; /* זה הקסם - תמיד שומר על פריטים במרכז השורה */
+    gap: 24px;
+    padding-top: 20px;
+}
+
+.statItem {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 32px 16px;
+    border-radius: 20px;
+    transition: all 0.2s ease;
+
+    /* הגדרת רוחב גמיש אך יציב */
+    flex: 1 1 250px; /* ינסה להיות 200px, יגדל אם צריך, ויתכווץ */
+    max-width: 280px; /* מונע מהם להימתח יותר מדי אם יש רק פריט אחד בשורה */
+    min-width: 180px;
+
+    background-color: transparent;
+}
+
+.statItem:hover {
+    background-color: #f8f9fa; /* אפור בהיר מאוד וניטרלי */
+}
+
+.statValue {
+    font-size: 36px;
+    font-weight: 900;
+    line-height: 1;
+    margin-bottom: 12px;
+}
+
+.statLabel {
+    font-size: 14px;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: var(--text);
+    letter-spacing: 1px;
+    text-align: center;
+}
+
+/* צבעים */
+.colorBlue { color: var(--blue); }
+.colorYellow { color: var(--yellow); }
+.colorGreen { color: var(--green); }
+.colorRed { color: var(--red); }
+.colorText { color: var(--text-h); }
+
+
+.statisticsStatus {
+    text-align: center;
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text);
+    padding: 40px;
+}
+
+.statisticsStatus.error {
+    color: var(--red);
+}
+
+/* רספונסיביות */
+@media (max-width: 600px) {
+    .statisticsTitle {
+        font-size: 32px;
+    }
+
+    .statsGridContainer {
+        gap: 20px;
+    }
+
+    .statItem {
+        flex: 1 1 100%; /* במובייל כל אחד יתפוס שורה שלמה וימרכז את עצמו */
+        max-width: 100%;
+    }
+
+    .statValue {
+        font-size: 48px;
+    }
+}

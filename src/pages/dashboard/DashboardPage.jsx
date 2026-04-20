@@ -17,6 +17,7 @@ function DashboardPage({user}) {
         navigate("/race/" + e.target.name);
     }
 
+
     return (
         <>
             <div className="dashboard-wrapper">
@@ -28,7 +29,7 @@ function DashboardPage({user}) {
                         onClick={() => setIsProfileOpen(true)}
                         title="Profile"
                     >
-                        {user.username ? user.username.substring(0, 1).toUpperCase() : '👤'}
+                        {user ? user.username.substring(0, 1).toUpperCase() : 'G'}
                     </button>
 
                     <img

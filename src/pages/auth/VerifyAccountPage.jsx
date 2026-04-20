@@ -1,17 +1,21 @@
-import {useParams, useNavigate} from 'react-router-dom';
-import {useEffect, useState} from 'react';
-import {verifyAccount} from "../../services/authService.js";
-import {ClipLoader} from "react-spinners";
+import { useParams, useNavigate } from 'react-router-dom';
+import { useEffect, useState, useRef } from 'react';
+import { verifyAccount } from "../../services/authService.js";
+import { ClipLoader } from "react-spinners";
+
+import { getErrorMessage } from "../../utils/errorMapper.js";
 
 import './Auth.css'
 import Card from "../../components/ui/Card.jsx";
 
 function VerifyAccountPage() {
     const navigate = useNavigate();
-    const {token} = useParams();
+    const { token } = useParams();
 
     const [status, setStatus] = useState('loading');
     const [message, setMessage] = useState('Verifying your account...');
+
+    const hasFetched = useRef(false);
 
     useEffect(() => {
         const checkToken = async () => {
@@ -28,17 +32,29 @@ function VerifyAccountPage() {
 
                 } else {
                     setStatus('error');
-                    setMessage('The link is invalid or has expired.');
+
+
+                    const code = response.errorCode;
+                    setMessage(getErrorMessage(code));
                 }
             } catch (error) {
                 console.error("Error verifying token:", error);
                 setStatus('error');
-                setMessage('Connection error. Please try again later.');
+
+                if (error.response && error.response.status === 404) {
+                    setMessage(getErrorMessage(9001));
+                } else {
+                    setMessage(getErrorMessage(9000));
+                }
             }
         };
 
-        if (token) {
+        if (token && !hasFetched.current) {
+            hasFetched.current = true;
             checkToken();
+        } else if (!token) {
+            setStatus('error');
+            setMessage(getErrorMessage(1000));
         }
     }, [navigate, token]);
 
@@ -47,14 +63,16 @@ function VerifyAccountPage() {
 
             <Card className="theme-yellow">
                 <h2>Account Verification</h2>
-                {
-                    status === 'loading' && (
-                        <div>
-                            <ClipLoader/>
-                        </div>
-                    )
-                }
-                <p>{message}</p>
+
+                {status === 'loading' && (
+                    <div style={{ margin: '20px 0' }}>
+                        <ClipLoader color="var(--text-h)" />
+                    </div>
+                )}
+
+                <p style={{ marginTop: status === 'loading' ? '0' : '20px', fontWeight: status === 'error' ? 'bold' : 'normal', color: status === 'error' ? 'var(--red)' : 'inherit' }}>
+                    {message}
+                </p>
             </Card>
         </div>
     );

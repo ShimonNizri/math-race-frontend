@@ -1,9 +1,12 @@
-import {useState} from "react";
-import {useNavigate} from "react-router-dom";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import Card from "../../components/ui/Card.jsx";
-import PasswordForm from "../../components/auth/PasswordForm.jsx"; // וודא שהנתיב נכון
-import {AlertModal, ALERT_TYPES} from "../../components/ui/AlertModal.jsx";
-import {changePassword} from "../../services/authService.js";
+import PasswordForm from "../../components/auth/PasswordForm.jsx";
+import { AlertModal, ALERT_TYPES } from "../../components/ui/AlertModal.jsx";
+import { changePassword } from "../../services/authService.js";
+
+import ErrorToast from "../../components/ui/ErrorToast.jsx";
+import { getErrorMessage } from "../../utils/errorMapper.js";
 
 import './Auth.css'
 
@@ -12,11 +15,20 @@ function ChangePasswordPage() {
 
     const [alert, setAlert] = useState(null);
 
+    const [errorMessage, setErrorMessage] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
+
     const handleAction = async (password) => {
+        if (isLoading) return;
+
+        setIsLoading(true);
+        setErrorMessage("");
+        setAlert(null);
+
         try {
             const response = await changePassword(password);
 
-            if (response.success) {
+            if (response.success === true) {
                 setAlert({
                     type: ALERT_TYPES.SUCCESS,
                     title: "Success",
@@ -26,32 +38,41 @@ function ChangePasswordPage() {
 
                 setTimeout(() => navigate('/'), 5000);
             } else {
-                setAlert({
-                    type: ALERT_TYPES.ERROR,
-                    message: response.message || "Something went wrong"
-                });
+                const code = response.errorCode;
+                setErrorMessage(getErrorMessage(code));
             }
         } catch (err) {
             console.error(err);
-            setAlert({
-                type: ALERT_TYPES.ERROR,
-                message: "Server connection failed!"
-            });
+
+            if (err.response && err.response.status === 404) {
+                setErrorMessage(getErrorMessage(9001));
+            } else {
+                setErrorMessage(getErrorMessage(9000));
+            }
+        } finally {
+            setIsLoading(false);
         }
     };
 
     return (
-        <div  className="page-wrapper">
+        <div className="page-wrapper">
+
+            <ErrorToast
+                message={errorMessage}
+                onClose={() => setErrorMessage("")}
+            />
+
             <Card className="theme-red">
                 <PasswordForm
                     onSubmit={handleAction}
+                    isLoading={isLoading}
                     header={
                         <>
                             <h2>Change The Password</h2>
                             <p>Choose a password (8-14 characters) to keep your account safe.</p>
                         </>
                     }
-                    buttonText="Save Password"
+                    buttonText={isLoading ? "Saving..." : "Save Password"}
                 />
 
                 {alert && (

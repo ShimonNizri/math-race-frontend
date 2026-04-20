@@ -1,0 +1,229 @@
+.gameHistoryContainer {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+}
+
+.historyTitle {
+    margin: 0;
+    font-size: 32px;
+    font-weight: 900;
+    color: var(--text-h);
+    text-align: left;
+}
+
+.historyStatus {
+    text-align: center;
+    font-size: 18px;
+    font-weight: 800;
+    color: var(--text);
+    padding: 40px;
+}
+
+.historyStatus.error {
+    color: var(--red);
+}
+
+.historyList {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.historyCard {
+    background-color: var(--bg);
+    border: 4px solid var(--border);
+    border-radius: 20px;
+    padding: 20px;
+    box-shadow: 0 6px 0 var(--border);
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.historyCard:hover:not(.expanded) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 0 var(--border);
+    background-color: var(--code-bg);
+}
+
+.historyCard.expanded {
+    border-color: var(--blue);
+    box-shadow: 0 6px 0 var(--blue);
+    cursor: default;
+}
+
+.historyCardHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    cursor: pointer;
+}
+
+.historyInfoMain {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.historyInfoMain h3 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 900;
+    color: var(--text-h);
+}
+
+.historyDate {
+    font-size: 14px;
+    color: var(--text);
+    font-weight: 600;
+}
+
+.historyInfoStats {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.rankBadge, .scoreBadge {
+    padding: 6px 12px;
+    border-radius: 12px;
+    font-weight: 900;
+    font-size: 14px;
+    border: 2px solid transparent;
+}
+
+.scoreBadge {
+    background-color: var(--code-bg);
+    color: var(--text-h);
+    border-color: var(--border);
+}
+
+.rankGold { background-color: var(--yellow); color: #fff; box-shadow: 0 4px 0 #d97706; }
+.rankSilver { background-color: #9ca3af; color: #fff; box-shadow: 0 4px 0 #6b7280; }
+.rankBronze { background-color: #d97706; color: #fff; box-shadow: 0 4px 0 #92400e; }
+.rankRegular { background-color: var(--blue); color: #fff; box-shadow: 0 4px 0 #1d4ed8; }
+
+.historyCardDetails {
+    margin-top: 16px;
+    animation: slideDownFade 0.3s ease forwards;
+}
+
+.detailsDivider {
+    border: none;
+    height: 4px;
+    background-color: var(--code-bg);
+    border-radius: 2px;
+    margin: 0 0 24px 0;
+}
+
+.detailsLoading, .detailsError {
+    text-align: center;
+    font-weight: 800;
+    color: var(--text);
+    padding: 20px 0;
+}
+
+.detailsError { color: var(--red); }
+
+.statsGrid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 12px;
+    margin-bottom: 24px;
+}
+
+.statBox {
+    background-color: var(--code-bg);
+    border: 2px solid var(--border);
+    border-radius: 16px;
+    padding: 12px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.statLabel {
+    font-size: 12px;
+    font-weight: 800;
+    text-transform: uppercase;
+    color: var(--text);
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+}
+
+.statValue {
+    font-size: 20px;
+    font-weight: 900;
+    color: var(--text-h);
+}
+
+.leaderboardTitle {
+    margin: 0 0 12px 0;
+    font-size: 18px;
+    font-weight: 900;
+    color: var(--text-h);
+}
+
+.matchLeaderboard {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.leaderboardRow {
+    display: flex;
+    align-items: center;
+    background-color: var(--bg);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 10px 16px;
+    font-weight: 800;
+}
+
+.leaderboardRow.isMe {
+    background-color: var(--accent-bg);
+    border-color: var(--accent-border);
+    color: var(--text-h);
+}
+
+.playerRank {
+    width: 40px;
+    color: var(--text);
+}
+
+.playerName {
+    flex: 1;
+    color: var(--text-h);
+}
+
+.playerScore {
+    color: var(--blue);
+}
+
+@keyframes slideDownFade {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+@media (max-width: 768px) {
+    .historyCardHeader {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .historyInfoStats {
+        width: 100%;
+        justify-content: space-between;
+    }
+
+    .statValue {
+        font-size: 14px;
+    }
+
+    .statsGrid {
+        grid-template-columns: repeat(1, 1fr);
+    }
+}

@@ -33,6 +33,10 @@ function ManageProfileLayout() {
                     <NavLink to="/manage-profile/history" className="nav-tab" onClick={closeMenu}>
                         Game History
                     </NavLink>
+
+                    <NavLink to="/manage-profile/statistics" className="nav-tab" onClick={closeMenu}>
+                        Statistics
+                    </NavLink>
                 </nav>
             </aside>
 

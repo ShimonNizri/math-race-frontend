@@ -1,23 +1,40 @@
 import Card from "../../components/ui/Card.jsx";
 import Button from "../../components/ui/Button.jsx";
 import Input from "../../components/ui/Input.jsx";
-import {useState, useContext} from "react";
-import {Link, useNavigate} from "react-router-dom";
+import {useState, useContext, useEffect} from "react";
+import {Link, useLocation, useNavigate} from "react-router-dom";
 
-import {login} from "../../services/authService.js";
-import {WebSocketContext} from "../../services/webSocket/WebSocketContext.js";
+import { login } from "../../services/authService.js";
+import { WebSocketContext } from "../../services/webSocket/WebSocketContext.js";
 import logo from "../../assets/logo.png";
+
+import ErrorToast from "../../components/ui/ErrorToast.jsx";
+import { getErrorMessage } from "../../utils/errorMapper.js";
 
 function LoginPage() {
     const navigate = useNavigate();
-    const {updateAuthToken} = useContext(WebSocketContext);
+    const location = useLocation();
+
+    const { updateAuthToken } = useContext(WebSocketContext);
+
+    const [errorMessage, setErrorMessage] = useState("");
+    const [isLoading, setIsLoading] = useState(false);
+
     const [formData, setFormData] = useState({
         email: "",
         password: "",
     });
 
+    useEffect(() => {
+        if (location.state && location.state.alertMessage) {
+            setErrorMessage(location.state.alertMessage);
+
+            window.history.replaceState({}, document.title);
+        }
+    }, [location]);
+
     const handleChange = (e) => {
-        const {name, value} = e.target;
+        const { name, value } = e.target;
         setFormData((prev) => ({
             ...prev,
             [name]: value
@@ -27,33 +44,47 @@ function LoginPage() {
     const handleSubmit = async (e) => {
         e.preventDefault();
 
+        if (isLoading) return;
+
+        setIsLoading(true);
+        setErrorMessage("");
+
         try {
             const response = await login(formData);
+
             if (response.success === true) {
-                console.log(response);
-                console.log("Logged in successfully!");
-                console.log(response.data);
                 updateAuthToken(response.data.token, response.data.dayToSaveToken);
                 navigate("/");
             } else {
-                console.log("Login failed : " + response.message);
+                const code = response.errorCode;
+                setErrorMessage(getErrorMessage(code));
+
+                if (code === 1005 || code === 1301) {
+                    setFormData({ email: "", password: "" });
+                }
             }
         } catch (err) {
             console.log("Login failed:", err);
+            setErrorMessage(getErrorMessage(9000));
+        } finally {
+            setIsLoading(false);
         }
     };
 
     return (
         <div className="page-wrapper">
+            <ErrorToast
+                message={errorMessage}
+                onClose={() => setErrorMessage("")}
+            />
+
             <Card className="theme-blue">
                 <div>
-
                     <img
                         src={logo}
                         alt="Math Race Logo"
                         className="dashboard-logo"
                     />
-
                     <h2>Welcome back!</h2>
                     <p>
                         To start playing and enjoy, just log in to your account first<br/>
@@ -70,6 +101,7 @@ function LoginPage() {
                         value={formData.email}
                         onChange={handleChange}
                         required
+                        disabled={isLoading}
                     />
                     <Input
                         name={"password"}
@@ -78,9 +110,13 @@ function LoginPage() {
                         value={formData.password}
                         onChange={handleChange}
                         required
+                        disabled={isLoading}
                     />
                     <Link to={"/auth/forgot-password"}>Forgot password?</Link>
-                    <Button type="submit">Sign in</Button>
+
+                    <Button type="submit" disabled={isLoading}>
+                        {isLoading ? "Signing in..." : "Sign in"}
+                    </Button>
                 </form>
             </Card>
         </div>
