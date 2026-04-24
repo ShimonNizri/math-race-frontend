@@ -1,13 +1,17 @@
-import {useNavigate} from "react-router-dom";
+import {useLocation, useNavigate, useParams} from "react-router-dom";
 import {useEffect, useRef, useState} from "react";
 import {useWebSocket} from "../../services/webSocket/WebSocketContext.js";
 import RaceLobby from "../../components/race/RaceLobby.jsx";
-import RaceActiveHost from "../../components/race/RaceActiveHost.jsx";
 import RaceResults from "../../components/race/RaceResults.jsx";
 import RaceActivePlayer from "../../components/race/RaceActivePlayer.jsx";
 import {ClipLoader} from "react-spinners";
 
-function RacePlayerPage({ roomCode, joinToken, accountId }) {
+function RacePlayerPage() {
+    const location = useLocation();
+    const joinToken = location.state?.joinToken || null;
+    const { roomCode } = useParams();
+    const [accountId, setAccountId] = useState(null);
+
     const navigate = useNavigate();
     const { isConnected, lastMessage,clearLastMessage, sendMessage, subscribe} = useWebSocket();
     const [raceState, setRaceState] = useState(null);
@@ -20,6 +24,7 @@ function RacePlayerPage({ roomCode, joinToken, accountId }) {
         const unsubscribeQueue = subscribe(queue, (data) => {
                 console.log("קיבלנו הודעה חדשה מהסוקט:", data);
                 if (data.type === 'RACE_FULL_STATE') {
+                    setAccountId(data.data.players.at(-1).id);
                     setRaceState(data.data);
                 } else if (data.type === 'JUNCTION_OFFERED') {
                 // השחקן קיבל הצעת צומת!
@@ -201,7 +206,7 @@ function RacePlayerPage({ roomCode, joinToken, accountId }) {
             hasSynced.current = false;
         };
 
-    }, [isConnected, roomCode, sendMessage, subscribe,joinToken]);
+    }, [isConnected, roomCode, sendMessage, subscribe, joinToken, accountId]);
 
     useEffect(() => {
         if (lastMessage) {

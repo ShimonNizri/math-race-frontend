@@ -21,6 +21,8 @@ import {myProfile} from "./services/userProfileService.js";
 import {ClipLoader} from "react-spinners";
 import ProtectedRoute from "./components/auth/ProtectedRoute.jsx";
 import NotFoundPage from "./pages/NotFoundPage.jsx";
+import RaceHostPage from "./pages/race/RaceHostPage.jsx";
+import RacePlayerPage from "./pages/race/RacePlayerPage.jsx";
 
 function App() {
     const [user, setUser] = useState(null);
@@ -73,7 +75,9 @@ function App() {
                             <Route path="create" element={<CreateRacePage/>}/>
                         </Route>
 
-                        <Route path=":roomCode" element={<RacePage/>}/>
+                        <Route path=":roomCode/host" element={<RaceHostPage/>}/>
+                        <Route path=":roomCode/player" element={<RacePlayerPage/>}/>
+
                     </Route>
 
                     <Route element={<MainLayout/>}>

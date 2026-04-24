@@ -61,7 +61,7 @@ function CreateRacePage() {
             const response = await createRace(formData);
             if (response.success) {
                 const { code } = response.data;
-                navigate(`/race/${code}`);
+                navigate(`/race/${code}/host`);
             } else {
                 handleBackendError(response);
             }

@@ -15,12 +15,16 @@ function WebSocketProvider({ children }) {
     const hasRecovered = useRef(false);
 
     const updateAuthToken = useCallback((newToken, dayToSave) => {
+        console.log("הגיע להחלף איימל");
+        console.log(newToken + " = " + dayToSave);
         if (newToken) {
             console.log("New Auth-Token Update", newToken);
             cookieService.setAuthToken(newToken, dayToSave);
         } else {
+            console.log("הסיר איימל")
             cookieService.removeAuthToken();
         }
+
         setAuthToken(newToken);
     }, []);
 
@@ -67,7 +71,8 @@ function WebSocketProvider({ children }) {
                     const data = JSON.parse(message.body);
 
                     if (data.type === 'ERROR') {
-                        setError(data.content + " מפה 4 ");
+                        console.log(data.content + " -1-");
+                        setError(data.content);
                     } else {
                         setLastMessage(data);
                     }
@@ -97,19 +102,21 @@ function WebSocketProvider({ children }) {
                             setError(null);
                             console.log("Recovered successfully with Guest ID:", response.data.guestToken);
                         } else {
-                            setError(errorMsg + " מפה 2 ");
+                            setError(errorMsg);
                         }
                     } catch (err) {
                         console.error("Failed to fetch Guest ID:", err);
                         setError("SERVER_ERROR");
                     }
                 } else {
-                    setError(errorMsg + " הגיע ממני כן ");
+                    setError(errorMsg);
+                    console.log(errorMsg + " -2-");
                 }
             },
             onWebSocketClose: (event) => {
                 if (event.reason && event.reason.startsWith("DUPLICATE_RACE_CONNECTION")) {
-                    setError(event.reason + " מפה 3 ");
+                    console.log(event.reason + " -3-");
+                    setError(event.reason);
                 }
 
                 console.log("WS WebSocket Closed!");
@@ -129,6 +136,13 @@ function WebSocketProvider({ children }) {
         };
     }, [authToken, guestToken]);
 
+    const reactivateConnection = useCallback(() => {
+        if (clientRef.current && (!clientRef.current.active || !isConnected)) {
+            console.log("Forcing Reactivation of STOMP client...");
+            clientRef.current.activate();
+        }
+    }, [isConnected]);
+
     const sendMessage = useCallback((destination, body) => {
         if (clientRef.current && isConnected) {
             clientRef.current.publish({
@@ -138,12 +152,18 @@ function WebSocketProvider({ children }) {
         }
     }, [isConnected]);
 
-    const subscribe = useCallback((destination, callback, joinToken = null) => {
+    const subscribe = useCallback((destination, callback, joinToken = null, onSubscribeReady = null) => {
         if (clientRef.current && isConnected) {
 
             const headers = {};
             if (joinToken) {
                 headers['Join-Token'] = joinToken;
+            }
+
+            if (onSubscribeReady) {
+                setTimeout(() => {
+                    onSubscribeReady();
+                }, 250);
             }
 
             const subscription = clientRef.current.subscribe(destination, (message) => {
@@ -158,6 +178,7 @@ function WebSocketProvider({ children }) {
     return (
         <WebSocketContext.Provider value={{
             isConnected,
+            reactivateConnection,
             lastMessage,
             clearLastMessage,
             error,

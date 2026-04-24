@@ -60,8 +60,9 @@ function JoinRacePage() {
             const response = await joinRace(formData);
             console.log(response);
             if (response.success) {
-                const { code, joinToken } = response.data;
-                navigate("/race/" + code, {
+                const { code, joinToken,type } = response.data;
+                console.log(joinToken + " יש טוקן לכניסה ");
+                navigate(`/race/${code}/${type.toLowerCase()}`, {
                     state: { joinToken: joinToken }
                 });
             } else {
