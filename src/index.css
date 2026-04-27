@@ -168,8 +168,6 @@ code {
 
 /* Theme Blue */
 .theme-blue.game-card { border-color: var(--blue); box-shadow: 0 10px 0 var(--blue); }
-.theme-blue.game-card:hover { box-shadow: 0 14px 0 var(--blue); }
-.theme-blue.game-card:active { box-shadow: 0 6px 0 var(--blue); }
 .theme-blue h2 { color: var(--blue); }
 .theme-blue button { background-color: var(--blue); box-shadow: 0 6px 0 #1d4ed8; }
 .theme-blue button:hover { transform: translateY(-4px); box-shadow: 0 10px 0 #1d4ed8; }
@@ -177,8 +175,6 @@ code {
 
 /* Theme Green */
 .theme-green.game-card { border-color: var(--green); box-shadow: 0 10px 0 var(--green); }
-.theme-green.game-card:hover { box-shadow: 0 14px 0 var(--green); }
-.theme-green.game-card:active { box-shadow: 0 6px 0 var(--green); }
 .theme-green h2 { color: var(--green); }
 .theme-green button { background-color: var(--green); box-shadow: 0 6px 0 #15803d; }
 .theme-green button:hover { transform: translateY(-4px); box-shadow: 0 10px 0 #15803d; }
@@ -186,8 +182,6 @@ code {
 
 /* Theme Yellow */
 .theme-yellow.game-card { border-color: var(--yellow); box-shadow: 0 10px 0 var(--yellow); }
-.theme-yellow.game-card:hover { box-shadow: 0 14px 0 var(--yellow); }
-.theme-yellow.game-card:active { box-shadow: 0 6px 0 var(--yellow); }
 .theme-yellow h2 { color: var(--yellow); }
 .theme-yellow button { background-color: var(--yellow); box-shadow: 0 6px 0 #d97706; }
 .theme-yellow button:hover { transform: translateY(-4px); box-shadow: 0 10px 0 #d97706; }
@@ -195,8 +189,6 @@ code {
 
 /* Theme Red */
 .theme-red.game-card { border-color: var(--red); box-shadow: 0 10px 0 var(--red); }
-.theme-red.game-card:hover { box-shadow: 0 14px 0 var(--red); }
-.theme-red.game-card:active { box-shadow: 0 6px 0 var(--red); }
 .theme-red h2 { color: var(--red); }
 .theme-red button { background-color: var(--red); box-shadow: 0 6px 0 #b91c1c; }
 .theme-red button:hover { transform: translateY(-4px); box-shadow: 0 10px 0 #b91c1c; }
