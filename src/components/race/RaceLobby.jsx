@@ -60,6 +60,7 @@ const PlayerAvatar = memo(({ player, isHost }) => {
 
 function RaceLobby({ raceState, onStartRace, isHost }) {
     const navigate = useNavigate();
+    const inviteLink = `${window.location.origin}/race/join?code=${raceState.roomCode}`;
 
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
     const [isPendingOpen, setIsPendingOpen] = useState(false);
@@ -93,16 +94,29 @@ function RaceLobby({ raceState, onStartRace, isHost }) {
         setIsSettingsOpen(false);
     };
 
-    const handleShare = () => {
-        if (navigator.share) {
-            navigator.share({
-                title: 'Join my Race!',
-                text: `Join my math race using code: ${raceState.roomCode}`,
-                url: window.location.href
-            });
-        } else {
-            alert("Share not supported on this browser");
+    const handleShare = async () => {
+        const shareData = {
+            title: '🏎️ Join the Math Race!',
+            text: `🏎️ *Join the Math Race!*\n\nA new room is open and waiting for players in the lobby! 🏆\nLet's see who wins. Click the link to join directly:\n(Room Code: ${raceState.roomCode})`,
+            url: inviteLink
+        };
+
+        try {
+            if (navigator.share) {
+                await navigator.share(shareData);
+            } else {
+                fallbackShare();
+            }
+        } catch (error) {
+            console.error("Share failed:", error);
         }
+    };
+
+    const fallbackShare = () => {
+        navigator.clipboard.writeText(
+            `A Math Race is starting! Join here: ${inviteLink}`
+        );
+        alert("Link copied to clipboard!");
     };
 
     const handleOpenConfirmModal = (type) => {
@@ -261,7 +275,7 @@ function RaceLobby({ raceState, onStartRace, isHost }) {
 
                     <div className="qr-wrapper">
                         <QRCode
-                            value={window.location.href}
+                            value={inviteLink}
                             size={140}
                             logoImage={myLogo}
                             logoWidth={80}

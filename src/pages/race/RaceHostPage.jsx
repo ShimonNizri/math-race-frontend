@@ -183,8 +183,6 @@ function RaceHostPage() {
                     return null;
                 });
 
-
-
                 setRaceState({
                     name: data.data.name,
                     roomCode: data.data.roomCode,

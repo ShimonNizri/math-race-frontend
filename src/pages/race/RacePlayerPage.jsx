@@ -1,5 +1,5 @@
 import {useLocation, useNavigate, useParams} from "react-router-dom";
-import {useEffect, useRef, useState} from "react";
+import {useEffect, useState} from "react";
 import {useWebSocket} from "../../services/webSocket/WebSocketContext.js";
 import RaceLobby from "../../components/race/RaceLobby.jsx";
 import RaceResults from "../../components/race/RaceResults.jsx";
@@ -8,123 +8,29 @@ import {ClipLoader} from "react-spinners";
 
 function RacePlayerPage() {
     const location = useLocation();
-    const joinToken = location.state?.joinToken || null;
     const { roomCode } = useParams();
-    const [accountId, setAccountId] = useState(null);
-
     const navigate = useNavigate();
-    const { isConnected, lastMessage,clearLastMessage, sendMessage, subscribe} = useWebSocket();
+
+    const { isConnected, reactivateConnection, error, clearError, sendMessage, subscribe } = useWebSocket();
+    const [activeJoinToken, setActiveJoinToken] = useState(location.state?.joinToken || null);
+    const [isSubscriptionBlocked, setIsSubscriptionBlocked] = useState(false);
+
     const [raceState, setRaceState] = useState(null);
-    const hasSynced = useRef(false);
+
+    const [modalConfig, setModalConfig] = useState(null);
+    const [isReconnecting, setIsReconnecting] = useState(false);
+    const [topAlert, setTopAlert] = useState(null);
 
 
     useEffect(() => {
+        if (!isConnected || isSubscriptionBlocked) return;
+
         const queue = `/user/queue/race/feedback`;
-
-        const unsubscribeQueue = subscribe(queue, (data) => {
-                console.log("קיבלנו הודעה חדשה מהסוקט:", data);
-                if (data.type === 'RACE_FULL_STATE') {
-                    setAccountId(data.data.players.at(-1).id);
-                    setRaceState(data.data);
-                } else if (data.type === 'JUNCTION_OFFERED') {
-                // השחקן קיבל הצעת צומת!
-                setRaceState(prevState => {
-                    if (!prevState) return null;
-                    return {
-                        ...prevState,
-                        players: prevState.players.map(player => {
-                            if (player.id === accountId) {
-                                return {
-                                    ...player,
-                                    currentQuestion: null, // מוודאים שאין שאלה
-                                    currentJunctionOffer: data.data, // שומרים את ההצעה!
-                                    trackState: data.data.state,
-                                };
-                            }
-                            return player;
-                        })
-                    };
-                });
-            } else if (data.type === 'JUNCTION_CHOOSE' || data.type === 'JUNCTION_TIMEOUT') {
-                // השחקן סיים לבחור (או שנגמר הזמן)
-                setRaceState(prevState => {
-                    if (!prevState) return null;
-                    return {
-                        ...prevState,
-                        players: prevState.players.map(player => {
-                            if (player.id === accountId) {
-                                return {
-                                    ...player,
-                                    currentJunctionOffer: null, // מנקים את ההצעה
-                                    trackState: data.data.state, // מעדכנים את המסלול החדש (אופציונלי, אבל מומלץ לתצוגה)
-                                    totalTrackQuestions: data.data.totalTrackQuestions,
-                                };
-                            }
-                            return player;
-                        })
-                    };
-                });
-            } else if (data.type === 'TRACK_STATE_CHANGED') {
-                // השרת הודיע שחזרנו למסלול הרגיל (או עברנו מסלול)
-                setRaceState(prevState => {
-                    if (!prevState) return null;
-                    return {
-                        ...prevState,
-                        players: prevState.players.map(player => {
-                            if (player.id === accountId) {
-                                return {
-                                    ...player,
-                                    trackState: data.data.state,
-                                    totalTrackQuestions: data.data.totalTrackQuestions,
-                                };
-                            }
-                            return player;
-                        })
-                    };
-                });
-            } else if (data.type === 'NEW_QUESTION') {
-                    setRaceState(prevState => {
-                        if (!prevState) return null;
-                        return {
-                            ...prevState,
-                            players: prevState.players.map(player => {
-                                if (player.id === accountId) {
-                                    return {
-                                        ...player,
-                                        currentQuestion: data.data
-                                    };
-                                }
-                                return player;
-                            })
-                        };
-                    });
-                }else if (data.type === 'CORRECT_ANSWER' || data.type === 'WRONG_ANSWER' || data.type === 'TIMEOUT') {
-                    setRaceState(prevState => {
-                        if (!prevState) return null;
-                        return {
-                            ...prevState,
-                            players: prevState.players.map(player => {
-                                if (player.id === accountId) {
-                                    return {
-                                        ...player,
-                                        currentQuestion: null,
-                                        currentScore: player.currentScore + data.data.score
-                                    };
-                                }
-                                return player;
-                            })
-                        };
-                    });
-                }else if (data.type === 'ERROR') {
-                    alert(data.content);
-                }
-            }
-        );
-
         const topic = `/topic/race/${roomCode}/updates`;
 
         const unsubscribeTopic = subscribe(topic, (data) => {
                 console.log("קיבלנו הודעה חדשה מהסוקט:", data);
+
                 if (data.type === 'PLAYER_JOINED') {
                     setRaceState(prevState => {
                         if (!prevState) return null;
@@ -186,27 +92,83 @@ function RacePlayerPage() {
                     })
                 }
 
-            }, joinToken
+            }, activeJoinToken
         );
 
-        if (!hasSynced.current) {
+        const unsubscribeQueue = subscribe(queue, (data) => {
+            console.log("קיבלנו הודעה חדשה מהסוקט:", data);
+            if (data.type === 'RACE_FULL_STATE') {
+
+                const myPlayer = data.data.players.find(p => p.id === data.data.yourAccountId);
+
+                setRaceState({
+                    name: data.data.name,
+                    roomCode: data.data.roomCode,
+                    targetScore: data.data.targetScore,
+                    status: data.data.status,
+                    totalDurationMillis: data.data.totalDurationMillis,
+                    remainingTimeMs: data.data.remainingTimeMs,
+                    receivedAt: Date.now(),
+
+                    myAccount: myPlayer ? {
+                        id: myPlayer.id,
+                        userName: myPlayer.userName,
+                        nickname: myPlayer.nickname,
+                        carColor: myPlayer.carColor,
+                        currentScore: myPlayer.currentScore,
+                        online: myPlayer.online,
+                        trackState: myPlayer.trackState,
+
+                        currentQuestion: myPlayer.currentQuestion ? {
+                            expression: myPlayer.currentQuestion.expression,
+                            options: myPlayer.currentQuestion.options,
+                            timeLimitMillis: myPlayer.currentQuestion.timeLimitMillis,
+                            questionRemainingTimeMillis: myPlayer.currentQuestion.questionRemainingTimeMillis,
+                            score: myPlayer.currentQuestion.score,
+                            receivedAt: Date.now()
+                        } : null,
+
+                        currentJunction: myPlayer.currentJunction ? {
+                            expression: myPlayer.currentJunction.expression,
+                            offer1: myPlayer.currentJunction.offer1,
+                            offer2: myPlayer.currentJunction.offer2,
+                            timeLimitMillis: myPlayer.currentJunction.timeLimitMillis,
+                            questionRemainingTimeMillis: myPlayer.currentJunction.questionRemainingTimeMillis,
+                            receivedAt: Date.now()
+                        } : null
+
+                    } : null,
+
+                    host: {
+                        id: data.data.host.id,
+                        userName: data.data.host.userName,
+                        nickname: data.data.host.nickname,
+                        online: data.data.host.online
+                    },
+
+                    players: data.data.players
+                        .filter(player => player.id !== data.data.yourAccountId)
+                        .map(player => ({
+                            id: player.id,
+                            userName: player.userName,
+                            nickname: player.nickname,
+                            carColor: player.carColor,
+                            currentScore: player.currentScore,
+                            online: player.online,
+                        }))
+                });
+            }
+        },activeJoinToken,() => {
+            console.log("מבקש סנכרון התחלתי בבטחה...");
             sendMessage(`/app/race/${roomCode}/player/sync`, {});
-            hasSynced.current = true;
-        }
+        });
 
 
         return () => {
-            if (unsubscribeQueue){
-                unsubscribeQueue();
-            }
-            if (unsubscribeTopic){
-                unsubscribeTopic();
-            }
-
-            hasSynced.current = false;
+            if (unsubscribeQueue) unsubscribeQueue();
+            if (unsubscribeTopic) unsubscribeTopic();
         };
-
-    }, [isConnected, roomCode, sendMessage, subscribe, joinToken, accountId]);
+    }, [isConnected, roomCode, sendMessage, subscribe, activeJoinToken]);
 
     useEffect(() => {
         if (lastMessage) {
@@ -243,9 +205,9 @@ function RacePlayerPage() {
             return <RaceLobby raceState={raceState}  isHost={false} />;
         case 'PAUSED':
         case 'IN_PROGRESS':
-            return <RaceActivePlayer raceState={raceState} accountId={accountId} onAnswerQuestion={handleAnswerQuestion} onChooseJunction={handleChooseJunction}/>;
+            return <RaceActivePlayer raceState={raceState} accountId={raceState.myAccount.id} onAnswerQuestion={handleAnswerQuestion} onChooseJunction={handleChooseJunction}/>;
         case 'FINISHED':
-            return <RaceResults raceState={raceState} currentPlayerId={accountId} />;
+            return <RaceResults raceState={raceState} currentPlayerId={raceState.myAccount.id} />;
         default:
             return <div>Invalid race status: {raceState.status}</div>;    }
 }

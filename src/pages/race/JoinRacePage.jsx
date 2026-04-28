@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import Button from "../../components/ui/Button.jsx";
 import Input from "../../components/ui/Input.jsx";
 import Card from "../../components/ui/Card.jsx";
@@ -11,14 +11,17 @@ import { joinRace } from "../../services/raceService.js";
 import { useWebSocket } from "../../services/webSocket/WebSocketContext.js";
 import logo from "../../assets/logo.png";
 import './RaceForms.css';
-const INITIAL_STATE = {
-    roomCode: "",
-    nickname: "",
-};
 
 function JoinRacePage() {
     const navigate = useNavigate();
-    const [formData, setFormData] = useState(INITIAL_STATE);
+    const [searchParams] = useSearchParams();
+    const codeFromUrl = searchParams.get("code") || "";
+    const isCodeLocked = Boolean(codeFromUrl);
+
+    const [formData, setFormData] = useState({
+        roomCode: codeFromUrl,
+        nickname: "",
+    });
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [alert, setAlert] = useState(null);
 
@@ -60,7 +63,7 @@ function JoinRacePage() {
             const response = await joinRace(formData);
             console.log(response);
             if (response.success) {
-                const { code, joinToken,type } = response.data;
+                const { code, joinToken, type } = response.data;
                 console.log(joinToken + " יש טוקן לכניסה ");
                 navigate(`/race/${code}/${type.toLowerCase()}`, {
                     state: { joinToken: joinToken }
@@ -75,7 +78,7 @@ function JoinRacePage() {
                 title: "Error",
                 message: errorMessage
             });
-            setFormData(INITIAL_STATE);
+            setFormData({ roomCode: codeFromUrl, nickname: "" });
         } finally {
             setIsSubmitting(false);
         }
@@ -100,7 +103,7 @@ function JoinRacePage() {
                     title: "Invalid Request",
                     message: response.message
                 });
-                setFormData(INITIAL_STATE);
+                setFormData({ roomCode: codeFromUrl, nickname: "" });
                 break;
             default:
                 setAlert({
@@ -134,6 +137,8 @@ function JoinRacePage() {
                         value={formData.roomCode}
                         onChange={handleChange}
                         required
+                        disabled={isCodeLocked}
+                        style={isCodeLocked ? { opacity: 0.5, cursor: 'not-allowed', pointerEvents: 'none' } : {}}
                     />
 
                     <Input
@@ -142,6 +147,7 @@ function JoinRacePage() {
                         placeholder={"Nickname"}
                         value={formData.nickname}
                         onChange={handleChange}
+                        autoFocus={isCodeLocked}
                     />
 
                     <Button  type={"submit"} disabled={isSubmitting}>
