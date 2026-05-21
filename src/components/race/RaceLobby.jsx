@@ -1,9 +1,8 @@
 import Button from "../ui/Button.jsx";
 import { FaGear, FaRightFromBracket, FaShareNodes, FaXmark } from "react-icons/fa6";
 import { memo, useState } from "react";
-import { FaCheck, FaCopy, FaUserClock, FaQrcode } from "react-icons/fa";
-import { useNavigate } from "react-router-dom";
-import { AlertModal, ALERT_TYPES } from "../ui/AlertModal.jsx"; // ייבוא המודל
+import { FaCheck, FaCopy, FaUserClock } from "react-icons/fa";
+import { AlertModal, ALERT_TYPES } from "../ui/AlertModal.jsx";
 import myLogo from "../../assets/logo.png";
 
 import './RaceLobby.css';
@@ -59,7 +58,6 @@ const PlayerAvatar = memo(({ player, isHost }) => {
 
 
 function RaceLobby({ raceState, onStartRace, isHost }) {
-    const navigate = useNavigate();
     const inviteLink = `${window.location.origin}/race/join?code=${raceState.roomCode}`;
 
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);

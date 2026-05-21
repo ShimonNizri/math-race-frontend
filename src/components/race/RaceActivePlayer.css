@@ -213,7 +213,7 @@
     width: 100%;
 }
 
-.feedback-status { font-size: clamp(2.5rem, 6vw, 4rem); font-weight: 900; text-align: center;}
+.feedback-status { font-size: clamp(2.5rem, 6vw, 4rem); font-weight: 900; text-align: center;margin: 1.5rem 0; }
 .feedback-score-anim { font-size: clamp(2rem, 5vw, 3.5rem); font-weight: 900; text-align: center;}
 
 .text-positive { color: var(--green); }

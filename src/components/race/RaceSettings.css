@@ -1,0 +1,182 @@
+/* RaceSettings.css */
+
+.race-settings-wrapper {
+    position: absolute;
+    top: 100%;
+    left: 15px;
+    z-index: 9999;
+}
+
+/* לשונית חצי עיגול - מותאמת לבלוט גם במצב בהיר וגם בכהה */
+.settings-tab-btn {
+    all: unset;
+    box-sizing: border-box;
+    width: 60px;
+    height: 32px;
+    border-radius: 0 0 30px 30px;
+    background: var(--bg);
+    border: 2px solid var(--border);
+    border-top: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-bottom: 4px;
+    cursor: pointer;
+    color: var(--text);
+    font-size: 1.2rem;
+    transition: background-color 0.2s, color 0.2s, border-color 0.2s;
+    box-shadow: 0 4px 6px -2px rgba(0, 0, 0, 0.1);
+    transform: none !important;
+}
+
+/* הדגשה חזקה כשהלשונית פתוחה או במעבר עכבר */
+.settings-tab-btn:hover,
+.settings-tab-btn.active {
+    background: var(--bg) !important;
+    color: var(--blue) !important;
+    transform: none !important;
+}
+
+.gear-icon {
+    transition: transform 0.3s ease;
+}
+.settings-tab-btn.active .gear-icon {
+    transform: rotate(45deg);
+}
+
+/* פאנל ההגדרות */
+.settings-dropdown-panel {
+    position: absolute;
+    top: 40px;
+    left: 0;
+    width: 260px;
+    background: var(--bg);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    box-shadow: var(--shadow);
+    padding: 16px;
+    direction: ltr;
+    animation: slideDownSettings 0.2s ease-out;
+    z-index: 99999;
+}
+
+.settings-title {
+    margin: 0 0 16px 0;
+    font-size: 1.1rem;
+    color: var(--text-h);
+    text-align: center;
+    font-weight: 900;
+}
+
+.settings-section {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.settings-label {
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: var(--text);
+}
+
+.nickname-input-group {
+    display: flex;
+    gap: 8px;
+}
+
+.nickname-input {
+    flex: 1;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 2px solid var(--border);
+    background: var(--code-bg);
+    color: var(--text-h);
+    font-family: inherit;
+    font-size: 0.95rem;
+    outline: none;
+    transition: border-color 0.2s;
+}
+
+.nickname-input:focus {
+    border-color: var(--blue);
+}
+
+/* =======================================
+   כפתור שליחת שם (אייקון תלת מימדי)
+======================================= */
+.nickname-update-btn {
+    padding: 0 !important; /* דורס את הפדינג הענק של game-card */
+    border: none !important; /* מוודא שאין מסגרת */
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--blue);
+    color: white !important;
+    width: 42px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.1s ease;
+    box-shadow: 0 4px 0 #1d4ed8;
+}
+
+.nickname-update-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 #1d4ed8;
+}
+
+.nickname-update-btn:active {
+    transform: translateY(4px);
+    box-shadow: 0 0 0 transparent;
+}
+
+.nickname-update-btn svg {
+    font-size: 1.1rem;
+    fill: currentColor;
+    margin-right: 2px;
+}
+
+.settings-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 16px 0;
+    opacity: 0.6;
+}
+
+/* =======================================
+   כפתור יציאה (אדום מלא בולט 3D)
+======================================= */
+.settings-leave-btn {
+    all: unset;
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    background: var(--red);
+    color: white;
+    font-weight: 900;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: all 0.1s ease;
+    box-shadow: 0 4px 0 #b91c1c;
+}
+
+.settings-leave-btn:hover {
+    filter: brightness(1.1);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 #b91c1c;
+}
+
+.settings-leave-btn:active {
+    transform: translateY(4px);
+    box-shadow: 0 0 0 transparent;
+}
+
+@keyframes slideDownSettings {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}

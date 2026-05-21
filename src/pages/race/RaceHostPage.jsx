@@ -124,7 +124,7 @@ function RaceHostPage() {
                     };
                 });
 
-            } else if (data.type === 'PLAYER_KICKED') {
+            } else if (data.type === 'PLAYER_KICKED' || data.type === 'PLAYER_LEFT') {
                 setRaceState(prevState => {
                     if (!prevState) return null;
                     return {

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { createPortal } from 'react-dom'; // הוספנו את הפורטל לפתרון בעיית המודאל!
+import ConfirmModal from '../ui/ConfirmModal';
 import './RaceHeaderHost.css';
 
 const formatTime = (ms) => {
@@ -101,6 +101,16 @@ const RaceHeaderHost = ({ raceState, livePlayers, localTimeLeft, onPlayerClick, 
         else if (confirmModal.actionType === 'CANCEL') onCancelRace();
 
         closeConfirmModal();
+    };
+
+    // פונקציה לייצור הודעת המודאל הדינמית
+    const getModalMessage = () => {
+        switch (confirmModal.actionType) {
+            case 'PAUSE': return 'האם אתה בטוח שברצונך להשהות את המירוץ?';
+            case 'RESUME': return 'האם אתה בטוח שברצונך להמשיך את המירוץ?';
+            case 'CANCEL': return 'האם אתה בטוח שברצונך לבטל את המירוץ לחלוטין? כל ההתקדמות תאבד (פעולה זו בלתי הפיכה!).';
+            default: return '';
+        }
     };
 
     const isPaused = raceState.status === 'PAUSED';
@@ -224,28 +234,13 @@ const RaceHeaderHost = ({ raceState, livePlayers, localTimeLeft, onPlayerClick, 
                 </div>
             </div>
 
-            {/* מודאל אישור מרונדר מחוץ להיררכיה כדי שלא יושפע משום CSS (שימוש ב-Portal) */}
-            {confirmModal.isOpen && createPortal(
-                <div className="confirm-modal-overlay">
-                    <div className="confirm-modal-box">
-                        <h3 className="modal-title">אזהרה: אישור פעולה</h3>
-                        <p className="modal-text">
-                            {confirmModal.actionType === 'PAUSE' && 'האם אתה בטוח שברצונך להשהות את המירוץ?'}
-                            {confirmModal.actionType === 'RESUME' && 'האם אתה בטוח שברצונך להמשיך את המירוץ?'}
-                            {confirmModal.actionType === 'CANCEL' && 'האם אתה בטוח שברצונך לבטל את המירוץ לחלוטין? כל ההתקדמות תאבד (פעולה זו בלתי הפיכה!).'}
-                        </p>
-                        <div className="modal-actions">
-                            <button className="modal-btn modal-confirm-btn" onClick={executeConfirmedAction}>
-                                כן, אני מאשר
-                            </button>
-                            <button className="modal-btn modal-cancel-btn" onClick={closeConfirmModal}>
-                                ביטול
-                            </button>
-                        </div>
-                    </div>
-                </div>,
-                document.body // זה זורק את המודאל מעל הכל!
-            )}
+            {/* קומפוננטת המודאל הגנרית שלנו */}
+            <ConfirmModal
+                isOpen={confirmModal.isOpen}
+                message={getModalMessage()}
+                onConfirm={executeConfirmedAction}
+                onCancel={closeConfirmModal}
+            />
         </>
     );
 };

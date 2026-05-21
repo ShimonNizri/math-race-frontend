@@ -7,6 +7,7 @@ import RaceActivePlayer from "../../components/race/RaceActivePlayer.jsx";
 import {ClipLoader} from "react-spinners";
 import TopAlertBanner from "../../components/ui/TopAlertBanner.jsx";
 import DynamicModal from "../../components/ui/DynamicModal.jsx";
+import {joinRace} from "../../services/raceService.js";
 
 function RacePlayerPage() {
     const location = useLocation();
@@ -18,6 +19,7 @@ function RacePlayerPage() {
     const [isSubscriptionBlocked, setIsSubscriptionBlocked] = useState(false);
 
     const [raceState, setRaceState] = useState(null);
+    const [timeOffset, setTimeOffset] = useState(0);
 
     const [modalConfig, setModalConfig] = useState(null);
     const [isReconnecting, setIsReconnecting] = useState(false);
@@ -118,7 +120,7 @@ function RacePlayerPage() {
                             )
                         };
                     });
-                } else if (data.type === 'PLAYER_KICKED') {
+                } else if (data.type === 'PLAYER_KICKED' || data.type === 'PLAYER_LEFT') {
                     setRaceState(prevState => {
                         if (!prevState) return null;
                         return {
@@ -133,7 +135,7 @@ function RacePlayerPage() {
                             ...prevState,
                             status: data.data.status,
                             remainingTimeMs: data.data.remainingTimeMs,
-                            receivedAt: Date.now()
+                            receivedAt: data.data.sentAt,
                         };
                     });
 
@@ -203,6 +205,8 @@ function RacePlayerPage() {
                 console.log("סנכרון מלא מהשרת:", data.data);
                 setModalConfig(null);
                 setIsReconnecting(false);
+                setTimeOffset(Date.now() - data.data.sentAt);
+
                 setTopAlert(prev => {
                     if (prev && prev.type === 'error') {
                         setTimeout(() => setTopAlert(null), 1500);
@@ -220,7 +224,7 @@ function RacePlayerPage() {
                     status: data.data.status,
                     totalDurationMillis: data.data.totalDurationMillis,
                     remainingTimeMs: data.data.remainingTimeMs,
-                    receivedAt: Date.now(),
+                    receivedAt: data.data.sentAt,
 
                     myAccount: myPlayer ? {
                         id: myPlayer.id,
@@ -237,7 +241,7 @@ function RacePlayerPage() {
                             timeLimitMillis: myPlayer.currentQuestion.timeLimitMillis,
                             questionRemainingTimeMillis: myPlayer.currentQuestion.questionRemainingTimeMillis,
                             score: myPlayer.currentQuestion.score,
-                            receivedAt: Date.now()
+                            receivedAt: myPlayer.currentQuestion.sentAt,
                         } : null,
 
                         currentJunction: myPlayer.currentJunction ? {
@@ -246,7 +250,7 @@ function RacePlayerPage() {
                             offer2: myPlayer.currentJunction.offer2,
                             timeLimitMillis: myPlayer.currentJunction.timeLimitMillis,
                             questionRemainingTimeMillis: myPlayer.currentJunction.questionRemainingTimeMillis,
-                            receivedAt: Date.now()
+                            receivedAt: myPlayer.currentJunction.sentAt,
                         } : null
 
                     } : null,
@@ -331,7 +335,12 @@ function RacePlayerPage() {
                         "Removed from Race",
                         "You have been removed from this race by the host. You will be redirected to the homepage in 5 seconds..."
                     );
-                } else if (error === "DUPLICATE_RACE_CONNECTION") {
+                }else if (error === "PLAYER_LEFT"){
+                    showRedirectModal(
+                        "Player left",
+                        "You have chosen to leave the race. You will be redirected to the homepage in 5 seconds..."
+                    );
+                }else if (error === "DUPLICATE_RACE_CONNECTION") {
                     setModalConfig({
                         title: "Connected Elsewhere",
                         message: "Your account is currently active on another device or tab. Do you want to take over the connection and use it here?",
@@ -371,6 +380,14 @@ function RacePlayerPage() {
         });
     };
 
+    const handleLeaveRace = () => {
+        sendMessage(`/app/race/${roomCode}/player/left`, {});
+    };
+
+    const handleNicknameChange = () => {
+        sendMessage(`/app/race/${roomCode}/player/change-nickname`, {});
+    };
+
     const renderRaceContent = () => {
         if (!raceState) {
             return (
@@ -386,7 +403,9 @@ function RacePlayerPage() {
                 return <RaceLobby raceState={raceState}  isHost={false} />;
             case 'PAUSED':
             case 'IN_PROGRESS':
-                return <RaceActivePlayer raceState={raceState} joinToken={activeJoinToken} onAnswerQuestion={handleAnswerQuestion} onChooseJunction={handleChooseJunction}/>;
+                return <RaceActivePlayer raceState={raceState} joinToken={activeJoinToken} timeOffset={timeOffset}
+                                         onAnswerQuestion={handleAnswerQuestion} onChooseJunction={handleChooseJunction}
+                                         onNicknameChange ={handleNicknameChange} onLeaveRace = {handleLeaveRace}/>;
             case 'FINISHED':
                 return <RaceResults raceState={raceState} currentPlayerId={raceState.myAccount.id} />;
             default:

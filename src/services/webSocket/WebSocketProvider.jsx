@@ -114,18 +114,22 @@ function WebSocketProvider({ children }) {
                 }
             },
             onWebSocketClose: (event) => {
-                if (event.reason && event.reason.startsWith("DUPLICATE_RACE_CONNECTION")) {
+                console.log("WS WebSocket Closed!", event.code, event.reason);
+                setIsConnected(false);
+
+                if (event.reason && event.reason.startsWith("DUPLICATE_RACE_CONNECTION") || event.reason === "PLAYER_KICKED"
+                    || event.reason === "PLAYER_LEFT") {
                     console.log(event.reason + " -3-");
                     setError(event.reason);
-                }else if (event.code === 1006 || event.code === 1000) {
-                    console.log("Network dropped or server unreachable.");
+                } else {
+                    console.log("Network dropped or server unreachable. Code:", event.code);
                     setError("Session closed.");
                 }
-
-                console.log("WS WebSocket Closed!");
-                console.log(event.reason);
-
+            },
+            onWebSocketError: (event) => {
+                console.log("WebSocket Network Error!", event);
                 setIsConnected(false);
+                setError("Session closed.");
             },
         });
 
@@ -134,9 +138,31 @@ function WebSocketProvider({ children }) {
 
         window.debugStomp = client;
         //window.debugStomp.forceDisconnect(); בקונסול
-        // למחוק גם למעלה את השגיאה
+
+        const handleOffline = () => {
+            console.log("Browser detected network offline!");
+            if (clientRef.current) {
+                clientRef.current.deactivate();
+            }
+            setIsConnected(false);
+            setError("Session closed.");
+        };
+
+        const handleOnline = () => {
+            console.log("Browser detected network online! Reconnecting...");
+            // אם הלקוח קיים והוא לא פעיל, נפעיל אותו מחדש
+            if (clientRef.current && !clientRef.current.active) {
+                clientRef.current.activate();
+            }
+        };
+
+        window.addEventListener('offline', handleOffline);
+        window.addEventListener('online', handleOnline);
 
         return () => {
+            window.removeEventListener('offline', handleOffline);
+            window.removeEventListener('online', handleOnline);
+
             if (clientRef.current) {
                 clientRef.current.deactivate();
                 setIsConnected(false);
@@ -157,6 +183,9 @@ function WebSocketProvider({ children }) {
                 destination,
                 body: JSON.stringify(body)
             });
+
+        }else {
+            console.warn("Attempted to send message while STOMP is not connected. Ignoring.");
         }
     }, [isConnected]);
 
@@ -168,8 +197,9 @@ function WebSocketProvider({ children }) {
                 headers['Join-Token'] = joinToken;
             }
 
+            let timeoutId;
             if (onSubscribeReady) {
-                setTimeout(() => {
+                timeoutId = setTimeout(() => {
                     onSubscribeReady();
                 }, 500);
             }
@@ -178,7 +208,22 @@ function WebSocketProvider({ children }) {
                 callback(JSON.parse(message.body));
             }, headers);
 
-            return () => subscription.unsubscribe();
+            return () => {
+                if (timeoutId) {
+                    clearTimeout(timeoutId);
+                }
+
+                if (clientRef.current && clientRef.current.connected) {
+                    try {
+                        subscription.unsubscribe();
+                    } catch (err) {
+                        console.error(err);
+                        if (clientRef.current._subscriptions && subscription.id) {
+                            delete clientRef.current._subscriptions[subscription.id];
+                        }
+                    }
+                }
+            }
         }
         return () => {};
     }, [isConnected]);

@@ -1,0 +1,245 @@
+/* =========================================
+   עיצוב כללי
+========================================= */
+.custom-race-header {
+    width: 100%;
+    box-sizing: border-box;
+    background: var(--bg);
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    padding: 0; /* הפדינג עבר פנימה כדי לאפשר קיפול אלגנטי */
+    color: var(--text-h);
+    font-family: var(--sans);
+    box-shadow: var(--shadow);
+    margin: 0 auto 20px auto;
+    direction: rtl;
+    position: relative;
+    z-index: 400;
+    transition: background-color 0.3s, border-color 0.3s, color 0.3s;
+}
+
+/* =========================================
+   מנגנון הקיפול באנימציה (חדש!)
+========================================= */
+.header-collapse-wrapper {
+    max-height: 400px; /* מספיק גדול כדי להכיל הכל */
+    padding: 8px 16px; /* הפדינג המקורי יושב פה עכשיו */
+    overflow: hidden;
+    opacity: 1;
+    transition: max-height 0.4s ease, padding 0.4s ease, opacity 0.3s ease;
+}
+
+.custom-race-header.closed .header-collapse-wrapper {
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    opacity: 0;
+}
+
+/* =========================================
+   לשונית משיכה (חצי עיגול חלק שמתמזג עם הכותרת!)
+========================================= */
+.header-toggle-btn {
+    all: unset; /* מאפס הכל כדי שלא יירש עיצוב מחוץ לקומפוננטה */
+    box-sizing: border-box;
+
+    /* מיקום: מתחיל בדיוק בסוף הכותרת כדי לכסות את הפס התחתון שלה */
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+
+    /* צורת חצי עיגול מושלם */
+    width: 60px;
+    height: 30px; /* הגובה הוא בדיוק חצי מהרוחב */
+    border-radius: 0 0 30px 30px;
+
+    /* רקע וגבולות - מתמזגים עם הכותרת! */
+    background: var(--bg); /* חייב להיות זהה לרקע של הכותרת */
+    border: 2px solid var(--border);
+    border-top: none; /* מעלים את הגבול העליון כדי לחבר אותו לכותרת */
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding-bottom: 4px; /* מיישר את החץ ויזואלית לאמצע חצי העיגול */
+
+    cursor: pointer;
+    color: var(--text);
+    font-size: 0.95rem;
+    z-index: 20;
+    transition: color 0.2s;
+}
+
+/* אפקט עכבר - משנה רק את צבע החץ כדי לא לשבור את האשליה של החיבור! */
+.header-toggle-btn:hover {
+    color: var(--blue);
+    transform: translateX(-50%) !important; /* שומר אותו נעול באמצע למרות האנימציות באתר */
+}
+
+
+/* =========================================
+   שאר העיצוב הרגיל (השורות בפנים)
+========================================= */
+.header-top-row {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    align-items: center;
+    gap: 15px;
+    width: 100%;
+}
+
+.header-info-group {
+    justify-self: start;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 12px;
+    background: rgba(0, 0, 0, 0.05);
+    padding: 6px 12px;
+    border-radius: 12px;
+    border: 1px solid var(--border);
+    width: max-content;
+    max-width: 100%;
+}
+
+.header-info-group.player-self-group {
+    justify-self: end;
+}
+
+.vertical-separator {
+    width: 2px;
+    height: 40px;
+    background-color: rgba(150, 150, 150, 0.3);
+    border-radius: 2px;
+}
+
+/* --- פרטי חדר ומנהל --- */
+.room-details { display: flex; flex-direction: column; align-items: flex-start; gap: 4px; }
+.room-details h2 { margin: 0; font-size: 1.1rem; font-weight: 800; white-space: nowrap; }
+.room-code-wrapper { display: flex; align-items: center; gap: 6px; font-size: 0.85rem; font-weight: bold; }
+.room-code-box { display: flex; align-items: center; gap: 6px; background: var(--code-bg); border: 1px solid var(--border); border-radius: 6px; padding: 2px 8px; font-family: var(--mono); color: var(--text-h); font-size: 0.95rem; }
+
+.copy-btn { order: -1; background: none; border: none; cursor: pointer; font-size: 1.1rem; padding: 0; display: flex; align-items: center; justify-content: center; transition: transform 0.1s; }
+.copy-btn:hover { transform: scale(1.15); }
+.copy-btn:active { transform: scale(0.9); }
+
+.host-details { display: flex; flex-direction: column; align-items: center; gap: 2px; }
+.host-nickname-wrapper { display: flex; align-items: center; gap: 6px; }
+.host-nickname-large { font-size: 1.1rem; font-weight: 900; color: var(--text-h); white-space: nowrap;}
+.host-username { font-size: 0.85rem; font-family: var(--mono); font-weight: bold; margin-top: -2px;}
+
+.blue-text { color: var(--blue); }
+.gray-text { color: var(--text); font-style: italic; font-size: 0.8rem; }
+
+
+/* --- סטטיסטיקות השחקן (My Score / Participants) --- */
+.player-stats-wrapper {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+    direction: ltr; /* אנגלית מסודרת משמאל לימין */
+}
+
+.score-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    direction: ltr;
+}
+
+.score-label {
+    font-size: 0.95rem;
+    color: var(--text-h); /* שינינו לכאן שיהיה זהה למספר */
+    font-weight: bold;
+    white-space: nowrap;
+}
+
+.score-value {
+    font-size: 1.15rem;
+    font-weight: 900;
+    color: var(--text-h); /* זהה ללייבל */
+    font-family: var(--mono);
+}
+
+/* --- שורת המשתתפים: כל השורה בצבע אפור (כמו ה-Guest) --- */
+.participants-row {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    direction: ltr;
+}
+
+/* הטקסט "Participants:" */
+.participants-label {
+    color: var(--text) !important; /* אפור כמו ה-Guest */
+}
+
+/* המספר עצמו */
+.participants-count {
+    font-weight: 900;
+    font-family: var(--mono);
+    color: var(--text) !important; /* אפור בדיוק כמו הטקסט */
+}
+
+
+/* --- אזור הטיימר --- */
+.header-timer-area {
+    justify-self: center;
+    width: 100%;
+    max-width: 350px;
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+}
+
+.timer-text { width: 100%; display: flex; justify-content: space-between; font-weight: bold; font-size: 1rem; }
+.time-value { font-family: var(--mono); font-size: 1.15rem; }
+.progress-bar-container { width: 100%; height: 10px; background-color: var(--code-bg); border-radius: 10px; overflow: hidden; border: 1px solid var(--border); }
+.progress-bar-fill { height: 100%; background-color: var(--blue); transition: width 1s linear; }
+.danger-fill { background-color: var(--red); }
+.danger-text { color: var(--red); animation: pulse-danger 1s infinite; }
+.title-separator { width: 85%; height: 2px; background-color: rgba(150, 150, 150, 0.3); margin: 2px auto; border-radius: 2px; }
+.target-score { font-size: 0.95rem; color: var(--blue); font-weight: 900; }
+
+@keyframes pulse-danger {
+    0% { opacity: 1; }
+    50% { opacity: 0.5; }
+    100% { opacity: 1; }
+}
+
+/* --- סטטוס נקודה מהבהבת --- */
+.status-dot { position: static !important; margin: 0 !important; width: 10px; height: 10px; border-radius: 50%; display: block; flex-shrink: 0; }
+.status-dot.online { background-color: var(--green); box-shadow: 0 0 8px rgba(34, 197, 94, 0.6); animation: pulse-online 2s infinite; }
+@keyframes pulse-online { 0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.5); } 70% { box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); } 100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); } }
+.status-dot.offline { background-color: var(--text); }
+
+
+/* --- רספונסיביות --- */
+@media (max-width: 1100px) {
+    .header-top-row { gap: 10px; }
+}
+
+@media (max-width: 850px) {
+    .header-top-row {
+        grid-template-columns: 1fr;
+        gap: 10px;
+        justify-items: center;
+    }
+
+    .header-info-group, .header-info-group.player-self-group {
+        justify-self: stretch;
+        justify-content: center;
+        width: 100%;
+    }
+
+    .header-timer-area {
+        order: -1;
+        margin-bottom: 5px;
+    }
+
+    .vertical-separator {
+        display: none;
+    }
+}
