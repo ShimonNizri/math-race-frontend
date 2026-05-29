@@ -1,3 +1,4 @@
+/*ProfilePage*.
 /* Container design to center everything */
 .profile-card-design {
     display: flex;
@@ -35,6 +36,10 @@
     color: var(--text-h);
     margin: 0 0 8px 0;
     text-align: center;
+
+    word-break: break-word;
+    overflow-wrap: break-word;
+    max-width: 100%;
 }
 
 .profile-display-email {
@@ -42,6 +47,12 @@
     color: var(--text);
     margin: 0 0 32px 0;
     text-align: center;
+
+    /* מאפשר לאימייל להישבר לשתי שורות במסכים קטנים כדי לא להיחתך */
+    word-break: break-all; /* שובר גם באמצע מילה/כתובת */
+    overflow-wrap: break-word;
+    max-width: 100%;
+    padding: 0 10px; /* מוסיף קצת מרווח בצדדים במובייל */
 }
 
 /* Buttons Container */
@@ -101,4 +112,81 @@
 .btn-delete-account:active {
     transform: translateY(4px);
     box-shadow: 0 0px 0 var(--border) !important;
+}
+
+/* --- תוספות ל- ProfilePage.css --- */
+
+/* אזור עריכת שם משתמש */
+.profile-edit-section {
+    width: 100%;
+    max-width: 300px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 8px;
+
+    /* מוודא שהאזור לא גולש החוצה במסכים ממש קטנים */
+    box-sizing: border-box;
+    padding: 0 10px;
+}
+
+/* כפתור שמירת שם משתמש - קטן ועדין יותר */
+.btn-save-username {
+    background-color: var(--green, #4CAF50) !important;
+    color: white !important;
+    border: none !important;
+    box-shadow: 0 4px 0 #388E3C !important;
+    padding: 8px 16px !important;
+    border-radius: 8px !important;
+    font-size: 14px !important;
+    width: auto !important;
+    margin: 0 !important;
+}
+
+.btn-save-username:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 #388E3C !important;
+}
+
+.btn-save-username:active {
+    transform: translateY(4px);
+    box-shadow: 0 0px 0 #388E3C !important;
+}
+
+.btn-save-username:disabled {
+    background-color: #a5d6a7 !important;
+    box-shadow: 0 4px 0 #81c784 !important;
+    cursor: not-allowed;
+    transform: none;
+}
+
+/* הודעות משוב (הצלחה/שגיאה) */
+.profile-feedback-message {
+    width: 100%;
+    max-width: 450px;
+    padding: 12px;
+    border-radius: 8px;
+    text-align: center;
+    font-size: 14px;
+    font-weight: bold;
+    margin-bottom: 20px;
+}
+
+.profile-feedback-message.success {
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    border: 1px solid #c8e6c9;
+}
+
+.profile-feedback-message.error {
+    background-color: #ffebee;
+    color: #c62828;
+    border: 1px solid #ffcdd2;
+}
+
+.profile-feedback-message.info {
+    background-color: #e3f2fd;
+    color: #1565c0;
+    border: 1px solid #bbdefb;
 }

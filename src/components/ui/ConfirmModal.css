@@ -16,7 +16,8 @@
     margin: 0 !important;
     padding: 0 !important;
     box-sizing: border-box !important;
-    animation: modalAppear 0.25s ease-out forwards;
+    /* הוספנו אנימציה חדשה שרק משנה שקיפות לרקע */
+    animation: overlayFadeIn 0.25s ease-out forwards;
 }
 
 .confirm-modal-box {
@@ -29,6 +30,8 @@
     text-align: center;
     box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
     direction: rtl;
+    /* העברנו לפה את האנימציה שמעלה את המודאל */
+    animation: modalAppear 0.25s ease-out forwards;
 }
 
 .modal-title {
@@ -83,7 +86,14 @@
     background-color: var(--border);
 }
 
+/* אנימציה עבור הפאנל - עולה למעלה */
 @keyframes modalAppear {
     from { opacity: 0; transform: translateY(15px); }
     to { opacity: 1; transform: translateY(0); }
+}
+
+/* אנימציה עבור הרקע השחור - רק שקיפות בלי תזוזה */
+@keyframes overlayFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
 }

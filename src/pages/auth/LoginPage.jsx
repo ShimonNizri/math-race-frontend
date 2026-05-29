@@ -25,13 +25,20 @@ function LoginPage() {
         password: "",
     });
 
+    const fromPath = location.state?.from?.pathname || "/";
+    const fromSearch = location.state?.from?.search || "";
+    const from = fromPath + fromSearch;
+
     useEffect(() => {
         if (location.state && location.state.alertMessage) {
             setErrorMessage(location.state.alertMessage);
 
-            window.history.replaceState({}, document.title);
+            navigate(location.pathname, {
+                replace: true,
+                state: { from: location.state.from }
+            });
         }
-    }, [location]);
+    }, [location, navigate]);
 
     const handleChange = (e) => {
         const { name, value } = e.target;
@@ -54,7 +61,9 @@ function LoginPage() {
 
             if (response.success === true) {
                 updateAuthToken(response.data.token, response.data.dayToSaveToken);
-                window.location.href = "/";
+
+                // שימוש ב-navigate במקום רענון עמוד מלא. מחזיר את המשתמש ליעד שחישבנו
+                navigate(from, { replace: true });
             } else {
                 const code = response.errorCode;
                 setErrorMessage(getErrorMessage(code));

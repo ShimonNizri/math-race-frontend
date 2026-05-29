@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import {BrowserRouter, Routes, Route, Navigate, Outlet, useLocation} from 'react-router-dom';
 
 import LoginPage from "./pages/auth/LoginPage.jsx";
 import RegisterPage from "./pages/auth/RegisterPage.jsx";
@@ -8,7 +8,7 @@ import MainLayout from "./layouts/MainLayout.jsx";
 import DashboardPage from "./pages/dashboard/DashboardPage.jsx";
 import JoinRacePage from "./pages/race/JoinRacePage.jsx";
 import VerifyAccountPage from "./pages/auth/VerifyAccountPage.jsx";
-import ChangePasswordPage from "./pages/auth/ChangePasswordPage.jsx";
+import ChangePasswordPage from "./pages/profile/ChangePasswordPage.jsx";
 import WebSocketProvider from "./services/webSocket/WebSocketProvider.jsx";
 import CreateRacePage from "./pages/race/CreateRacePage.jsx";
 import GameHistoryPage from "./pages/history/GameHistoryPage.jsx";
@@ -20,10 +20,15 @@ import RaceHostPage from "./pages/race/RaceHostPage.jsx";
 import RacePlayerPage from "./pages/race/RacePlayerPage.jsx";
 import { cookieService } from "./services/cookieService.js";
 import PublicRacesPage from "./pages/dashboard/PublicRacesPage.jsx";
+import ConfirmDeleteAccount from "./pages/profile/ConfirmDeleteAccount.jsx";
 
 const CookieProtectedRoute = () => {
     const hasToken = cookieService.getAuthToken();
-    return hasToken ? <Outlet /> : <Navigate to="/auth/login" replace />;
+    const location = useLocation();
+
+    return hasToken ? (<Outlet />) : (
+        <Navigate to="/auth/login" state={{ from: location }} replace />
+    );
 };
 
 function App() {
@@ -36,7 +41,6 @@ function App() {
                         <Route path={"login"} element={<LoginPage/>}/>
                         <Route path={"register"} element={<RegisterPage/>}/>
                         <Route path={"forgot-password"} element={<ForgotPasswordPage/>}/>
-                        <Route path={"change-password"} element={<ChangePasswordPage/>}/>
                         <Route path={"reset-password/:token"} element={<ResetPasswordPage/>}/>
                         <Route path={"verify/:token"} element={<VerifyAccountPage/>}/>
                     </Route>
@@ -45,8 +49,6 @@ function App() {
                         <Route path="join" element={<JoinRacePage/>}/>
                         <Route element={<CookieProtectedRoute />}>
                             <Route path="create" element={<CreateRacePage/>}/>
-                        </Route>
-                        <Route element={<CookieProtectedRoute/>}>
                             <Route path=":roomCode/host" element={<RaceHostPage/>}/>
                         </Route>
                         <Route path=":roomCode/player" element={<RacePlayerPage/>}/>
@@ -57,11 +59,16 @@ function App() {
                         <Route path={"/public-races"} element={<PublicRacesPage />}/>
                     </Route>
 
-                    <Route element={<CookieProtectedRoute />}>
-                        <Route path={"/manage-profile"} element={<ManageProfileLayout/>}>
-                            <Route index element={<ProfilePage />}/>
-                            <Route path="history" element={<GameHistoryPage/>}/>
-                            <Route path="statistics" element={<StatisticsPage/>}/>
+                    <Route element={<CookieProtectedRoute/>}>
+                        <Route path={"/manage-profile"}>
+                            <Route element={<ManageProfileLayout/>}>
+                                <Route index element={<ProfilePage/>}/>
+                                <Route path={"history"} element={<GameHistoryPage/>}/>
+                                <Route path={"statistics"} element={<StatisticsPage/>}/>
+                            </Route>
+
+                            <Route path={"delete-account/:token"} element={<ConfirmDeleteAccount/>}/>
+                            <Route path={"change-password"} element={<ChangePasswordPage/>}/>
                         </Route>
                     </Route>
 
