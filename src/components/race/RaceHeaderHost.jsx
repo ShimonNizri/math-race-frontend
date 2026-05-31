@@ -38,11 +38,26 @@ const RaceHeaderHost = ({ raceState, livePlayers, localTimeLeft, onPlayerClick, 
         };
     }, [isPlayersMenuOpen]);
 
+    const raceStatus = raceState?.status || 'IN_PROGRESS';
+    const isPending = raceStatus === 'PENDING';
+    const isPaused = raceStatus === 'PAUSED';
+
     const validTimeLeft = (typeof localTimeLeft === 'number' && !isNaN(localTimeLeft)) ? localTimeLeft : 0;
     const totalTime = raceState.totalDurationMillis || 1;
     const timePercent = Math.max(0, Math.min(100, (validTimeLeft / totalTime) * 100));
-    const isDanger = validTimeLeft <= 10000 && validTimeLeft > 0;
-    const isPaused = raceState.status === 'PAUSED';
+
+    // מניעת אזהרת זמן אדום בזמן Pending
+    const isDanger = validTimeLeft <= 10000 && validTimeLeft > 0 && !isPending;
+
+    let statusClass = 'active';
+    let statusLabel = 'Active';
+    if (isPending) {
+        statusClass = 'pending';
+        statusLabel = 'Pending';
+    } else if (isPaused) {
+        statusClass = 'paused';
+        statusLabel = 'Paused';
+    }
 
     const getFilteredAndSortedPlayers = () => {
         return livePlayers
@@ -106,8 +121,8 @@ const RaceHeaderHost = ({ raceState, livePlayers, localTimeLeft, onPlayerClick, 
                                 </div>
                             </div>
 
-                            <div className={`race-status-badge ${isPaused ? 'paused' : 'active'}`}>
-                                <span className="status-text">Status: {isPaused ? 'Paused' : 'Active'}</span>
+                            <div className={`race-status-badge ${statusClass}`}>
+                                <span className="status-text">Status: {statusLabel}</span>
                                 <span className="status-circle"></span>
                             </div>
                         </div>
@@ -199,6 +214,7 @@ const RaceHeaderHost = ({ raceState, livePlayers, localTimeLeft, onPlayerClick, 
                         currentNickname={raceState.host?.nickname}
                         currentRaceName={raceState.name}
                         isPaused={isPaused}
+                        isPending={isPending}
                         onChangeNickname={onChangeNickname}
                         onChangeRaceName={onChangeRaceName}
                         onPauseRace={onPauseRace}

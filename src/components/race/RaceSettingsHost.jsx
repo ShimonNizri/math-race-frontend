@@ -3,7 +3,7 @@ import { FaGear, FaCheck, FaPause, FaPlay, FaXmark } from "react-icons/fa6";
 import ConfirmModal from '../ui/ConfirmModal';
 import './RaceSettingsHost.css';
 
-const RaceSettingsHost = ({currentNickname, currentRaceName, isPaused,
+const RaceSettingsHost = ({currentNickname, currentRaceName, isPaused, isPending,
                               onChangeNickname, onChangeRaceName, onPauseRace,
                               onResumeRace, onCancelRace}) => {
     const [isOpen, setIsOpen] = useState(false);
@@ -151,12 +151,14 @@ const RaceSettingsHost = ({currentNickname, currentRaceName, isPaused,
                     <div className="settings-divider"></div>
 
                     <div className="settings-section host-actions-section">
-                        <button
-                            className="settings-action-btn orange-btn"
-                            onClick={() => setConfirmAction(isPaused ? 'RESUME' : 'PAUSE')}
-                        >
-                            {isPaused ? <><FaPlay className="action-icon"/> Resume Race</> : <><FaPause className="action-icon"/> Pause Race</>}
-                        </button>
+                        {!isPending && (
+                            <button
+                                className="settings-action-btn orange-btn"
+                                onClick={() => setConfirmAction(isPaused ? 'RESUME' : 'PAUSE')}
+                            >
+                                {isPaused ? <><FaPlay className="action-icon"/> Resume Race</> : <><FaPause className="action-icon"/> Pause Race</>}
+                            </button>
+                        )}
                         <button
                             className="settings-action-btn red-btn"
                             onClick={() => setConfirmAction('CANCEL')}

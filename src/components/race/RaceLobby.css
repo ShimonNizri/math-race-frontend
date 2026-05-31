@@ -6,13 +6,14 @@
     justify-content: space-between;
     align-items: stretch;
     width: 100%;
-    height: 100dvh;
-    max-height: 100dvh;
-    padding: 24px;
+    height: 100%;
+    min-height: 500px;
+    padding: 0 24px 24px 24px;
     box-sizing: border-box;
     gap: 24px;
     overflow: hidden;
-    background-color: var(--bg);
+    margin-top: 30px;
+    background: transparent;
 }
 
 .lobby-sidebar {
@@ -24,155 +25,9 @@
     box-sizing: border-box;
 }
 
-.left-sidebar {
-    padding: 24px;
-    justify-content: space-between;
-}
-
-.sidebar-top-content {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-align: center;
-}
-
-.room-title {
-    font-size: 38px;
-    line-height: 1;
-    margin: 0 0 24px 0;
-}
-
-.room-stats-box {
-    background: var(--code-bg);
-    border: 3px solid var(--border);
-    border-radius: 12px;
-    padding: 16px;
-    width: 100%;
-    box-sizing: border-box;
-    margin-bottom: 24px;
-    font-size: 16px;
-}
-
-.room-stats-box p { margin: 6px 0; }
-
-.host-box {
-    background: var(--bg);
-    border: 3px solid var(--border);
-    border-radius: 16px;
-    padding: 16px;
-    width: 100%;
-    box-sizing: border-box;
-    box-shadow: 0 4px 0 var(--border);
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-
-.host-box h3 { margin: 0 0 8px 0; font-size: 14px; text-transform: uppercase; color: var(--text); }
-.host-name { font-size: 20px; font-weight: 900; color: var(--text-h); }
-.host-username { font-family: var(--mono); font-size: 13px; margin-top: 4px; }
-
-.sidebar-bottom-content {
-    width: 100%;
-}
-
-.start-massive-btn {
-    width: 100%;
-    font-size: 24px !important;
-    padding: 20px !important;
-}
-
 .right-sidebar {
     gap: 24px;
 }
-
-.controls-header {
-    display: flex;
-    justify-content: flex-end;
-    gap: 16px;
-    z-index: 50;
-}
-
-.dropdown-wrapper {
-    position: relative;
-}
-
-.icon-btn {
-    font-size: 20px !important;
-    padding: 12px !important;
-    border-radius: 12px !important;
-}
-
-.notification-dot {
-    position: absolute;
-    top: -6px;
-    right: -6px;
-    background: var(--red);
-    color: white;
-    font-size: 12px;
-    font-weight: 900;
-    width: 22px;
-    height: 22px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    border: 3px solid var(--bg);
-}
-
-.dropdown-menu {
-    position: absolute;
-    top: calc(100% + 10px);
-    right: 0;
-    width: 350px;
-    padding: 20px;
-    z-index: 100;
-}
-
-.dropdown-menu h3 { margin: 0 0 16px 0; }
-
-.pending-list {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    max-height: 200px;
-    overflow-y: auto;
-}
-
-.pending-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: var(--code-bg);
-    padding: 8px 12px;
-    border-radius: 8px;
-    border: 2px solid var(--border);
-    font-weight: 800;
-}
-
-.pending-actions { display: flex; gap: 6px; }
-.approve-btn, .reject-btn {
-    border: none; border-radius: 6px; width: 28px; height: 28px; color: black !important; cursor: pointer;
-
-    display: flex !important;
-    align-items: center !important;
-    justify-content: center !important;
-    padding: 0 !important;
-}
-.approve-btn {
-    background: var(--green) !important;
-    box-shadow: 0 3px 0 #15803d !important;
-}
-.reject-btn { background: var(--red) !important; box-shadow: 0 3px 0 #b91c1c !important; }
-.approve-btn:active, .reject-btn:active { transform: translateY(3px); box-shadow: none; }
-
-.settings-form { display: flex; flex-direction: column; gap: 10px; }
-.settings-form input {
-    padding: 10px; border-radius: 8px; border: 3px solid var(--border); background: var(--code-bg);
-    font-family: var(--sans); font-weight: 700; outline: none;
-}
-.settings-form hr { border: none; border-top: 2px dashed var(--border); margin: 8px 0; }
-.danger-btn { background-color: var(--red) !important; box-shadow: 0 4px 0 #b91c1c !important; width: 100%;}
 
 .invite-dashed-box {
     background: var(--code-bg);
@@ -200,6 +55,54 @@
 
 .invite-actions { display: flex; gap: 12px; width: 100%; }
 .invite-actions button { flex: 1; display: flex; align-items: center; justify-content: center; gap: 8px; }
+
+/* אזור השליטה שבתחתית ברקוד (כפתור התחל/המתנה) */
+.lobby-action-section {
+    width: 100%;
+    margin-top: 24px;
+    padding-top: 24px;
+    border-top: 2px dashed var(--border);
+}
+
+.start-massive-btn {
+    width: 100%;
+    font-size: 1.4rem !important;
+    padding: 16px !important;
+    font-weight: 900 !important;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    background-color: var(--blue) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 12px !important;
+    box-shadow: 0 4px 0 #1d4ed8 !important;
+    transition: transform 0.1s, box-shadow 0.1s;
+}
+
+.start-massive-btn:active:not(:disabled) {
+    transform: translateY(4px);
+    box-shadow: none !important;
+}
+
+.start-massive-btn:disabled {
+    background-color: #64748b !important;
+    box-shadow: 0 4px 0 #475569 !important;
+    cursor: not-allowed;
+    opacity: 0.8;
+}
+
+.waiting-for-host-msg {
+    background: var(--bg);
+    border: 2px dashed var(--border);
+    color: var(--blue);
+    font-weight: 800;
+    padding: 16px;
+    border-radius: 12px;
+    text-align: center;
+    width: 100%;
+    box-sizing: border-box;
+    font-size: 1rem;
+}
 
 .lobby-center-arena {
     flex: 1;
@@ -263,12 +166,10 @@
 }
 
 .avatar-circle {
-
     position: relative;
     display: flex;
     align-items: center;
     justify-content: center;
-
     width: 70px;
     height: 70px;
     border-radius: 50%;
@@ -283,42 +184,30 @@
     transform: translateY(-4px);
 }
 
-.kick-badge-btn {
-    position: absolute;
-    top: -5px;
-    right: -5px;
-    width: 28px;
-    height: 28px;
-    border-radius: 50%;
-    background: var(--red);
-    color: white;
-    border: 3px solid var(--bg);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    box-shadow: 0 2px 0 var(--border);
-    transition: transform 0.1s;
-    padding: 0;
-    font-size: 14px;
-}
-.kick-badge-btn:hover { transform: scale(1.1); }
-.kick-badge-btn:active { transform: scale(0.9); box-shadow: none; }
-
+/* הגדרות חיווי סטטוס כמו ב-RaceHeader */
 .status-dot {
-    position: absolute !important;
-    bottom: 2px;
-    right: 2px;
-    width: 16px;
-    height: 16px;
+    position: relative !important;
+    width: 10px;
+    height: 10px;
     border-radius: 50%;
-    border: 3px solid var(--bg);
-    z-index: 10;
+    display: inline-block;
+    flex-shrink: 0;
 }
 
-.status-dot.online { background: var(--green); }
+.status-dot.online {
+    background-color: var(--green);
+    box-shadow: 0 0 8px rgba(34, 197, 94, 0.6);
+    animation: pulse-online-avatar 2s infinite;
+}
+
+@keyframes pulse-online-avatar {
+    0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.5); }
+    70% { box-shadow: 0 0 0 6px rgba(34, 197, 94, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+}
+
 .status-dot.offline {
-    background: var(--text);
+    background-color: var(--text);
 }
 
 .avatar-names {
@@ -335,42 +224,8 @@
 
 .empty-arena { margin: auto; font-size: 20px; font-weight: 800; color: var(--text); }
 
-.waiting-footer {
-    padding: 16px;
-    text-align: center;
-    background: var(--code-bg);
-    border-top: 4px solid var(--border);
-    font-weight: 800;
-    color: var(--blue);
-}
 
-@media (max-width: 1200px) and (min-width: 769px) {
-    .lobby-fullscreen-layout {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        grid-template-areas:
-            "left right"
-            "center center";
-        grid-template-rows: auto 1fr;
-        height: 100dvh;
-        overflow: hidden;
-    }
-
-    .left-sidebar { grid-area: left; width: 100%; }
-    .right-sidebar { grid-area: right; width: 100%; }
-    .lobby-center-arena {
-        grid-area: center;
-        width: 100%;
-        height: 100%;
-        overflow: hidden;
-    }
-
-    .players-scroll-area {
-        flex: 1;
-        overflow-y: auto;
-    }
-}
-
+/* התאמה למסכים קטנים (מובייל / טאבלטים אנכיים) */
 @media (max-width: 768px) {
     .lobby-fullscreen-layout {
         display: flex;
@@ -380,16 +235,16 @@
         overflow-y: auto;
         padding: 16px;
         gap: 16px;
+        margin-top: 20px;
     }
 
     .right-sidebar { order: 1; width: 100%; }
-    .left-sidebar { order: 2; width: 100%; }
 
     .lobby-center-arena {
-        order: 3;
+        order: 2;
         width: 100%;
         height: auto;
-        min-height: auto;
+        min-height: 400px;
         overflow: visible;
         border-radius: 16px;
     }

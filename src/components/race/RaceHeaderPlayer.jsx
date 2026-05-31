@@ -18,16 +18,29 @@ const formatTime = (ms) => {
 const RaceHeaderPlayer = ({ raceState, localPlayer, localTimeLeft, onChangeNickname, onLeaveRace, messages }) => {
     const [isCopied, setIsCopied] = useState(false);
     const [isOpen, setIsOpen] = useState(true);
-
     const [isLeaveModalOpen, setIsLeaveModalOpen] = useState(false);
+
+    const raceStatus = raceState?.status || 'IN_PROGRESS';
+    const isPending = raceStatus === 'PENDING';
+    const isPaused = raceStatus === 'PAUSED';
 
     const validTimeLeft = (typeof localTimeLeft === 'number' && !isNaN(localTimeLeft)) ? localTimeLeft : 0;
     const totalTime = raceState.totalDurationMillis || 1;
     const timePercent = Math.max(0, Math.min(100, (validTimeLeft / totalTime) * 100));
-    const isDanger = validTimeLeft <= 10000 && validTimeLeft > 0;
+
+    const isDanger = validTimeLeft <= 10000 && validTimeLeft > 0 && !isPending;
 
     const totalPlayers = (raceState.players?.length || 0) + 1;
-    const isPaused = raceState?.status === 'PAUSED';
+
+    let statusClass = 'active';
+    let statusLabel = 'Active';
+    if (isPending) {
+        statusClass = 'pending';
+        statusLabel = 'Pending';
+    } else if (isPaused) {
+        statusClass = 'paused';
+        statusLabel = 'Paused';
+    }
 
     const handleCopyCode = () => {
         if (raceState.roomCode) {
@@ -69,8 +82,8 @@ const RaceHeaderPlayer = ({ raceState, localPlayer, localTimeLeft, onChangeNickn
                                     </div>
                                 </div>
 
-                                <div className={`race-status-badge ${isPaused ? 'paused' : 'active'}`}>
-                                    <span className="status-text">Status: {isPaused ? 'Paused' : 'Active'}</span>
+                                <div className={`race-status-badge ${statusClass}`}>
+                                    <span className="status-text">Status: {statusLabel}</span>
                                     <span className="status-circle"></span>
                                 </div>
                             </div>

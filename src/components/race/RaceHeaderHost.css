@@ -40,13 +40,6 @@
     overflow: hidden !important;
 }
 
-.custom-race-header.closed .header-collapse-wrapper {
-    max-height: 0;
-    padding-top: 0;
-    padding-bottom: 0;
-    opacity: 0;
-}
-
 .header-bottom-tabs-container {
     direction: ltr;
     position: absolute;
@@ -168,6 +161,7 @@
 .status-circle { width: 10px; height: 10px; border-radius: 50%; display: block; flex-shrink: 0; }
 .race-status-badge.active .status-circle { background-color: var(--green); }
 .race-status-badge.paused .status-circle { background-color: var(--yellow); }
+.race-status-badge.pending .status-circle { background-color: #0ea5e9; } /* סטייל חדש עבור PENDING */
 
 .host-details { display: flex; flex-direction: column; align-items: center; gap: 2px; min-width: 0; max-width: 100%; }
 .host-nickname-wrapper { display: flex; align-items: center; gap: 6px; max-width: 100%; }
@@ -253,7 +247,6 @@
 .players-dropdown {
     position: absolute;
     top: 100%;
-    margin-top: 10px;
     left: 0;
     right: auto;
     background: var(--bg);
@@ -285,7 +278,7 @@
 .player-name-wrapper { display: flex; align-items: center; justify-content: flex-start; gap: 8px; }
 .player-nickname { font-weight: bold; font-size: 1.05rem; color: var(--text-h); }
 .player-username { font-size: 0.8rem; margin-top: 2px; font-family: var(--mono); }
-.player-score { font-weight: 900; background: var(--bg); color: var(--text-h); padding: 6px 10px; border-radius: 6px; font-size: 1rem; border: 1px solid var(--border); }
+.player-score { font-weight: 900; background: var(--bg); color: var(--text-h) !important; padding: 6px 10px; border-radius: 6px; font-size: 1rem; border: 1px solid var(--border); }
 
 .status-dot { position: static !important; margin: 0 !important; width: 10px; height: 10px; border-radius: 50%; display: block; flex-shrink: 0; }
 .status-dot.online { background-color: var(--green); box-shadow: 0 0 8px rgba(34, 197, 94, 0.6); animation: pulse-online 2s infinite; }

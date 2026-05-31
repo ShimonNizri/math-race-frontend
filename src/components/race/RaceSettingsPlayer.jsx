@@ -36,7 +36,7 @@ const RaceSettingsPlayer = ({ currentNickname, onChangeNickname, onLeaveRace }) 
     };
 
     const handleUpdate = (e) => {
-        e.preventDefault();
+        if (e) e.preventDefault();
         setLocalError("");
 
         const error = validateName(nicknameInput);
@@ -46,10 +46,17 @@ const RaceSettingsPlayer = ({ currentNickname, onChangeNickname, onLeaveRace }) 
         }
 
         if (nicknameInput !== currentNickname) {
-            onChangeNickname(nicknameInput);
-            setIsOpen(false);
-        } else {
-            setIsOpen(false);
+            if (onChangeNickname) onChangeNickname(nicknameInput);
+        }
+
+        setIsOpen(false);
+    };
+
+    // פונקציה חדשה שתופסת את האנטר בצורה ישירה
+    const handleKeyDown = (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault(); // מונע קפיצות או ריענון
+            handleUpdate(e);
         }
     };
 
@@ -63,33 +70,31 @@ const RaceSettingsPlayer = ({ currentNickname, onChangeNickname, onLeaveRace }) 
                 <div className="settings-dropdown-panel game-card">
                     <h3 className="settings-title">Settings</h3>
 
-                    {localError && <div style={{ color: 'red', fontSize: '12px', marginBottom: '10px', textAlign: 'center' }}>{localError}</div>}
+                    {localError && <div style={{ color: 'red', fontSize: '12px', marginBottom: '10px', textAlign: 'center', fontWeight: 'bold' }}>{localError}</div>}
 
                     <div className="settings-section">
                         <label className="settings-label">Change Nickname:</label>
-                        <form className="nickname-input-group" onSubmit={handleUpdate}>
+
+                        {/* שינוי חשוב: הפכנו את ה-form ל-div והעברנו את השליטה המלאה לידיים שלנו */}
+                        <div className="nickname-input-group">
                             <input
                                 type="text"
                                 className="nickname-input"
                                 value={nicknameInput}
                                 onChange={(e) => setNicknameInput(e.target.value)}
+                                onKeyDown={handleKeyDown} /* קורא לפונקציה שבודקת האם נלחץ אנטר */
                                 placeholder="New nickname..."
-                                required
-                                minLength={3}
-                                maxLength={15}
-                                pattern={"^\\S.*\\S$"}
-                                title="Nickname must be 3-15 characters and cannot start or end with a space"
                             />
-                            <button type="submit" className="nickname-update-btn" title="Update">
+                            <button type="button" className="nickname-update-btn" onClick={handleUpdate} title="Update">
                                 <FaCheck />
                             </button>
-                        </form>
+                        </div>
                     </div>
 
                     <div className="settings-divider"></div>
 
                     <div className="settings-section">
-                        <button className="settings-leave-btn" onClick={onLeaveRace}>
+                        <button type="button" className="settings-leave-btn" onClick={onLeaveRace}>
                             <FaRightFromBracket style={{ marginRight: '8px' }}/>
                             Leave Race
                         </button>
