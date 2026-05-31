@@ -86,8 +86,8 @@ function CreateRacePage() {
             return false;
         } else {
             const score = Number(targetScore);
-            if (score < 20 || score > 100000) {
-                setAlert({ type: ALERT_TYPES.ERROR, title: "Invalid Input", message: "Target score must be between 20 and 100,000" });
+            if (score < 400 || score > 2500) {
+                setAlert({ type: ALERT_TYPES.ERROR, title: "Invalid Input", message: "Target score must be between 400 and 2500." });
                 return false;
             }
         }
@@ -204,8 +204,8 @@ function CreateRacePage() {
                     <Input
                         name={"targetScore"}
                         type={"number"}
-                        min={20}
-                        max={100000}
+                        min={400}
+                        max={2500}
                         step={1}
                         onKeyDown={(e) => ["e", "E", "-", "+", "."].includes(e.key) && e.preventDefault()}
                         placeholder={"Target score"}
