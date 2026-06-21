@@ -1,19 +1,24 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from "react-router-dom";
 import Button from "../../components/ui/Button.jsx";
-import { AlertModal } from "../../components/ui/AlertModal.jsx";
+import { ALERT_TYPES, AlertModal } from "../../components/ui/AlertModal.jsx";
 import { myProfile } from "../../services/userProfileService.js";
+import { generateAdminToken } from "../../services/adminService.js";
+import { cookieService } from "../../services/cookieService.js";
 import { ClipLoader } from "react-spinners";
 import { useWebSocket } from "../../services/webSocket/WebSocketContext.js";
 import './ProfileModal.css';
 
-function ProfileModal({ onClose, user: initialUser, onLogout}) {
+function ProfileModal({ onClose, user: initialUser, onLogout }) {
     const navigate = useNavigate();
     const { updateAuthToken } = useWebSocket() || {};
 
     const [user, setUser] = useState(initialUser || null);
     const [loading, setLoading] = useState(!initialUser);
     const [error, setError] = useState(false);
+
+    const [adminLoading, setAdminLoading] = useState(false);
+    const [adminError, setAdminError] = useState(false);
 
     const fetchUserData = async () => {
         setLoading(true);
@@ -36,7 +41,6 @@ function ProfileModal({ onClose, user: initialUser, onLogout}) {
 
     useEffect(() => {
         if (initialUser) return;
-
         fetchUserData();
     }, [initialUser]);
 
@@ -58,9 +62,41 @@ function ProfileModal({ onClose, user: initialUser, onLogout}) {
         onClose();
     };
 
+
+    const handleAdminPanelClick = async () => {
+        const existingAdminToken = cookieService.getAdminToken();
+
+        if (existingAdminToken) {
+            handleNavigation('/admin/dashboard');
+            return;
+        }
+
+        setAdminLoading(true);
+        setAdminError(false);
+
+        try {
+            const response = await generateAdminToken();
+
+            const payload = response && response.data ? response.data : response;
+
+            if (payload && payload.token) {
+                cookieService.setAdminToken(payload.token, payload.minutesToSaveToken);
+                handleNavigation('/admin/dashboard');
+            } else {
+                console.error("Token missing in response payload:", response);
+                setAdminError(true);
+            }
+        } catch (error) {
+            console.error("Failed to generate admin token:", error);
+            setAdminError(true);
+        } finally {
+            setAdminLoading(false);
+        }
+    };
+
     if (loading) {
         return (
-            <AlertModal title="" onClose={onClose}>
+            <AlertModal type={ALERT_TYPES.INFO} title="" onClose={onClose}>
                 <div style={{ display: 'flex', justifyContent: 'center', padding: '3rem' }}>
                     <ClipLoader color="#36d7b7" />
                 </div>
@@ -70,7 +106,7 @@ function ProfileModal({ onClose, user: initialUser, onLogout}) {
 
     if (error) {
         return (
-            <AlertModal title="" onClose={onClose}>
+            <AlertModal type={ALERT_TYPES.ERROR} title="" onClose={onClose}>
                 <div className="profile-content" style={{ marginTop: '16px' }}>
                     <div style={{ fontSize: '40px', textAlign: 'center', marginBottom: '10px' }}>🔌</div>
                     <h3 className="profile-name" style={{ textAlign: 'center', fontSize: '24px', lineHeight: '1.2', color: '#d9534f' }}>
@@ -92,9 +128,33 @@ function ProfileModal({ onClose, user: initialUser, onLogout}) {
         );
     }
 
+    if (adminError) {
+        return (
+        <AlertModal type={ALERT_TYPES.ERROR} title="" onClose={onClose}>
+            <div className="profile-content" style={{ marginTop: '16px' }}>
+                <div style={{ fontSize: '40px', textAlign: 'center', marginBottom: '10px' }}>⚠️</div>
+                <h3 className="profile-name" style={{ textAlign: 'center', fontSize: '24px', lineHeight: '1.2', color: '#d9534f' }}>
+                    Admin Access Denied
+                </h3>
+                <p className="profile-email" style={{ textAlign: 'center', lineHeight: '1.4', marginTop: '12px' }}>
+                    Failed to generate admin token. You may not have the required permissions or the server encountered an error.
+                </p>
+            </div>
+
+            <hr className="profile-divider"/>
+
+            <div className="profile-actions" style={{ justifyContent: 'center' }}>
+                <Button onClick={() => setAdminError(false)} style={{ width: '100%' }}>
+                    Back to Profile
+                </Button>
+            </div>
+        </AlertModal>
+    );
+    }
+
     if (!user) {
         return (
-            <AlertModal title="" onClose={onClose}>
+            <AlertModal type={ALERT_TYPES.INFO} title="" onClose={onClose}>
                 <div className="profile-content" style={{ marginTop: '16px' }}>
                     <h3 className="profile-name" style={{ textAlign: 'center', fontSize: '24px', lineHeight: '1.2' }}>
                         Oops! You're not logged in
@@ -118,10 +178,10 @@ function ProfileModal({ onClose, user: initialUser, onLogout}) {
         );
     }
 
-    const { username, email } = user;
+    const { username, email, role } = user;
 
     return (
-        <AlertModal title="My Profile" onClose={onClose}>
+        <AlertModal type={ALERT_TYPES.INFO} title="My Profile" onClose={onClose}>
             <div className="profile-content">
                 <div className="profile-avatar">
                     {username ? username.substring(0, 1).toUpperCase() : '👤'}
@@ -136,6 +196,16 @@ function ProfileModal({ onClose, user: initialUser, onLogout}) {
                 <Button onClick={() => handleNavigation('/manage-profile')}>
                     Manage Profile
                 </Button>
+
+                {role === 'ADMIN' && (
+                    <Button
+                        className="btn-admin-panel"
+                        onClick={handleAdminPanelClick}
+                        disabled={adminLoading}
+                    >
+                        {adminLoading ? <ClipLoader size={16} color="#ffffff" /> : "Management Panel"}
+                    </Button>
+                )}
 
                 <Button className="btn-logout" onClick={handleLogout}>
                     Logout

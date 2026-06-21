@@ -4,6 +4,7 @@ const isProduction = import.meta.env.PROD;
 
 const AUTH_TOKEN_KEY = 'auth_token';
 const GUEST_TOKEN_KEY = 'guest_token';
+const ADMIN_TOKEN_KEY = 'admin_token';
 
 export const cookieService = {
 
@@ -39,5 +40,23 @@ export const cookieService = {
 
     removeGuestToken: () => {
         Cookies.remove(GUEST_TOKEN_KEY);
+    },
+
+    setAdminToken: (token, minutes) => {
+        const days = minutes / (24 * 60);
+        Cookies.set(ADMIN_TOKEN_KEY, token, {
+            expires: days,
+            secure: isProduction,
+            sameSite: 'strict',
+            path: '/'
+        });
+    },
+
+    getAdminToken: () => {
+        return Cookies.get(ADMIN_TOKEN_KEY);
+    },
+
+    removeAdminToken: () => {
+        Cookies.remove(ADMIN_TOKEN_KEY);
     }
 };

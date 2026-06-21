@@ -59,6 +59,7 @@ function RaceHostPage() {
         trackState: player.trackState,
 
         currentQuestion: player.currentQuestion ? {
+            id: player.currentQuestion.questionId,
             expression: player.currentQuestion.expression,
             options: player.currentQuestion.options,
             timeLimitMillis: player.currentQuestion.timeLimitMillis,

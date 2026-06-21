@@ -110,3 +110,27 @@
     box-shadow: 0 0px 0 #15803d !important;
     transform: translateY(6px) !important;
 }
+
+.btn-admin-panel {
+    background-color: var(--purple, #673AB7) !important;
+    color: white !important;
+    border: none !important;
+    box-shadow: 0 4px 0 #512DA8 !important;
+}
+
+.btn-admin-panel:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 #512DA8 !important;
+}
+
+.btn-admin-panel:active {
+    transform: translateY(4px);
+    box-shadow: 0 0px 0 #512DA8 !important;
+}
+
+.btn-admin-panel:disabled {
+    opacity: 0.8;
+    cursor: not-allowed;
+    transform: none !important;
+    box-shadow: 0 4px 0 #512DA8 !important;
+}

@@ -241,6 +241,7 @@ function RacePlayerPage() {
                         trackState: myPlayer.trackState,
 
                         currentQuestion: myPlayer.currentQuestion ? {
+                            id: myPlayer.currentQuestion.questionId,
                             expression: myPlayer.currentQuestion.expression,
                             options: myPlayer.currentQuestion.options,
                             timeLimitMillis: myPlayer.currentQuestion.timeLimitMillis,
@@ -398,6 +399,13 @@ function RacePlayerPage() {
         });
     };
 
+    const handleReportTemplate = (questionId, userComment) => {
+        sendMessage(`/app/race/${roomCode}/player/report-template`, {
+            questionId: questionId,
+            userComment: userComment || null
+        });
+    };
+
     const renderRaceContent = () => {
         if (!raceState) {
             return (
@@ -416,7 +424,7 @@ function RacePlayerPage() {
                 return <RaceActivePlayer raceState={raceState} joinToken={activeJoinToken} timeOffset={timeOffset}
                                          onAnswerQuestion={handleAnswerQuestion} onChooseJunction={handleChooseJunction}
                                          onNicknameChange ={handleNicknameChange} onLeaveRace = {handleLeaveRace}
-                                         onHintClick = {handleAskForHint}/>;
+                                         onHintClick = {handleAskForHint} onReportTemplate = {handleReportTemplate} />;
             case 'FINISHED':
                 return <RaceResults raceState={raceState} currentPlayerId={raceState.myAccount.id} />;
             default:

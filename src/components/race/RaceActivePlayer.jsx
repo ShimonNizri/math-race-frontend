@@ -7,7 +7,7 @@ import QuestionOptions from './QuestionOptions';
 import QuestionTimer from "./QuestionTimer.jsx";
 import QuestionHint from "./QuestionHint.jsx";
 
-function RaceActivePlayer({ raceState, joinToken, timeOffset = 0, onAnswerQuestion, onChooseJunction , onNicknameChange, onLeaveRace, onHintClick}) {
+function RaceActivePlayer({ raceState, joinToken, timeOffset = 0, onAnswerQuestion, onChooseJunction , onNicknameChange, onLeaveRace, onHintClick,onReportTemplate}) {
     const {isConnected, subscribe} = useWebSocket();
     const [localPlayer, setLocalPlayer] = useState(raceState.myAccount);
     const [messages, setMessages] = useState([]);
@@ -85,6 +85,7 @@ function RaceActivePlayer({ raceState, joinToken, timeOffset = 0, onAnswerQuesti
                     } else if (data.type === 'NEW_QUESTION') {
                         updatedPlayer.currentJunction = null;
                         updatedPlayer.currentQuestion = {
+                            id: data.data.questionId,
                             expression: data.data.expression,
                             options: data.data.options,
                             timeLimitMillis: data.data.timeLimitMillis,
@@ -265,6 +266,7 @@ function RaceActivePlayer({ raceState, joinToken, timeOffset = 0, onAnswerQuesti
                     canRequestHint={activeEvent?.canAskHint === true}
                     hasHintAlready={!!activeEvent?.hint}
                     isPaused={raceState.status !== 'IN_PROGRESS'}
+                    onReportTemplate={onReportTemplate}
                 />
 
                 <QuestionHint

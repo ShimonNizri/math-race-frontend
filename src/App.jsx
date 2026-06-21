@@ -21,6 +21,7 @@ import RacePlayerPage from "./pages/race/RacePlayerPage.jsx";
 import { cookieService } from "./services/cookieService.js";
 import PublicRacesPage from "./pages/dashboard/PublicRacesPage.jsx";
 import ConfirmDeleteAccount from "./pages/profile/ConfirmDeleteAccount.jsx";
+import AdminDashboard from "./pages/admin/AdminDashboard.jsx";
 
 const CookieProtectedRoute = () => {
     const hasToken = cookieService.getAuthToken();
@@ -30,6 +31,16 @@ const CookieProtectedRoute = () => {
         <Navigate to="/auth/login" state={{ from: location }} replace />
     );
 };
+
+const AdminProtectedRoute = () => {
+    const hasAdminToken = cookieService.getAdminToken();
+    const location = useLocation();
+
+    return hasAdminToken ? (<Outlet />) : (
+        <Navigate to="/" state={{ from: location }} replace />
+    );
+};
+
 
 function App() {
     return (
@@ -73,7 +84,11 @@ function App() {
                         </Route>
                     </Route>
 
-                    <Route path="*" element={<NotFoundPage />} />
+                    <Route element={<AdminProtectedRoute/>}>
+                        <Route path={"/admin/dashboard"} element={<AdminDashboard/>}/>
+                    </Route>
+
+                    <Route path="*" element={<NotFoundPage />}/>
 
                 </Routes>
             </BrowserRouter>

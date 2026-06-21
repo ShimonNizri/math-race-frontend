@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useState, useEffect } from 'react';
 import { FaLightbulb } from "react-icons/fa6";
 import './RaceFlipCard.css';
 
@@ -20,8 +20,69 @@ const TrackBadge = ({ trackState, currentQ, totalQ }) => {
     );
 };
 
+const REPORT_OPTIONS = [
+    "Logical error",
+    "Syntax error",
+    "Spelling mistake",
+    "Wrong answer",
+    "Other"
+];
 
-const RaceFlipCard = memo(({ flipCount, faces, feedbackType, scoreDiff, onHintClick, canRequestHint, hasHintAlready,isPaused }) => {
+const RaceFlipCard = memo(({ flipCount, faces, feedbackType, scoreDiff, onHintClick, canRequestHint, hasHintAlready, isPaused, onReportTemplate }) => {
+
+    const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+    const [reportedQId, setReportedQId] = useState(null);
+    const [selectedReportOptions, setSelectedReportOptions] = useState([]);
+    const [reportText, setReportText] = useState('');
+    const [showSuccessToast, setShowSuccessToast] = useState(false);
+
+    const [isFlipping, setIsFlipping] = useState(false);
+
+    useEffect(() => {
+        if (flipCount === 0) return;
+
+        setIsFlipping(true);
+
+        const timer = setTimeout(() => {
+            setIsFlipping(false);
+        }, 600);
+
+        return () => clearTimeout(timer);
+    }, [flipCount]);
+
+    const handleOpenReport = (questionId) => {
+        setReportedQId(questionId);
+        setSelectedReportOptions([]);
+        setReportText('');
+        setIsReportModalOpen(true);
+    };
+
+    const handleCloseReport = () => {
+        setIsReportModalOpen(false);
+        setReportedQId(null);
+    };
+
+    const toggleReportOption = (option) => {
+        setSelectedReportOptions(prev =>
+            prev.includes(option)
+                ? prev.filter(o => o !== option)
+                : [...prev, option]
+        );
+    };
+
+    const handleSubmitReport = () => {
+        const reasons = selectedReportOptions.join(", ");
+        const fullComment = `${reasons}${reasons && reportText ? ' | ' : ''}${reportText}`;
+
+        if (onReportTemplate && reportedQId) {
+            onReportTemplate(reportedQId, fullComment);
+        }
+
+        handleCloseReport();
+
+        setShowSuccessToast(true);
+        setTimeout(() => setShowSuccessToast(false), 2500);
+    };
 
     const renderFace = (content) => {
         if (!content) return null;
@@ -91,23 +152,82 @@ const RaceFlipCard = memo(({ flipCount, faces, feedbackType, scoreDiff, onHintCl
 
     const isFace0Active = flipCount % 2 === 0;
 
+    const currentFaceContent = isFace0Active ? faces.face0 : faces.face1;
+    const isCurrentJunc = !!currentFaceContent?.data?.offer1;
+
+    const isQuestionFace = currentFaceContent?.type === 'QUESTION';
+    const activeQuestionId = (isQuestionFace && !isCurrentJunc) ? currentFaceContent.data?.id : null;
+
+    const shouldShowReportBtn = activeQuestionId && !isFlipping;
+
     return (
-        <div className="flip-card-container">
-            <div className="flip-card-inner" style={{ transform: `rotateY(${flipCount * 180}deg)` }}>
-                <div
-                    className="flip-card-face face-0"
-                    style={{ pointerEvents: isFace0Active ? 'auto' : 'none' }}
-                >
-                    {renderFace(faces.face0)}
+        <>
+            <div className="flip-card-container">
+                <div className="flip-card-inner" style={{ transform: `rotateY(${flipCount * 180}deg)` }}>
+                    <div
+                        className="flip-card-face face-0"
+                        style={{ pointerEvents: isFace0Active ? 'auto' : 'none' }}
+                    >
+                        {renderFace(faces.face0)}
+                    </div>
+                    <div
+                        className="flip-card-face face-1"
+                        style={{ pointerEvents: !isFace0Active ? 'auto' : 'none' }}
+                    >
+                        {renderFace(faces.face1)}
+                    </div>
                 </div>
-                <div
-                    className="flip-card-face face-1"
-                    style={{ pointerEvents: !isFace0Active ? 'auto' : 'none' }}
-                >
-                    {renderFace(faces.face1)}
-                </div>
+
+                {shouldShowReportBtn && (
+                    <button
+                        className="report-question-btn"
+                        onClick={() => handleOpenReport(activeQuestionId)}
+                    >
+                        Report Question
+                    </button>
+                )}
             </div>
-        </div>
+
+            {isReportModalOpen && (
+                <div className="report-modal-overlay" onClick={handleCloseReport}>
+                    <div className="report-modal-content" onClick={e => e.stopPropagation()}>
+                        <button className="report-close-x" onClick={handleCloseReport}>&times;</button>
+                        <h3 className="report-modal-title">Report Question</h3>
+
+                        <div className="report-checkbox-grid">
+                            {REPORT_OPTIONS.map((option, idx) => (
+                                <label key={idx} className="report-checkbox-label">
+                                    <input
+                                        type="checkbox"
+                                        checked={selectedReportOptions.includes(option)}
+                                        onChange={() => toggleReportOption(option)}
+                                    />
+                                    {option}
+                                </label>
+                            ))}
+                        </div>
+
+                        <textarea
+                            className="report-textarea"
+                            placeholder="Additional details (optional)..."
+                            value={reportText}
+                            onChange={(e) => setReportText(e.target.value)}
+                            maxLength={900}
+                        />
+
+                        <button className="report-submit-btn" onClick={handleSubmitReport}>
+                            Submit Report
+                        </button>
+                    </div>
+                </div>
+            )}
+
+            {showSuccessToast && (
+                <div className="report-success-toast">
+                    Report sent!
+                </div>
+            )}
+        </>
     );
 });
 

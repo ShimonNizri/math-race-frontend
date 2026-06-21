@@ -104,6 +104,7 @@ function RaceActiveHost({ raceState, joinToken, timeOffset = 0, onKickPlayer, on
                             break;
                         case 'QUESTION_SENT':
                             updatedPlayer.currentQuestion = {
+                                id: data.data.questionId,
                                 expression: data.data.expression,
                                 options: data.data.options,
                                 timeLimitMillis: data.data.timeLimitMillis,
