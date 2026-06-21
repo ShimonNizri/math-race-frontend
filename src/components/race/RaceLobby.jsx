@@ -227,7 +227,7 @@ function RaceLobby({raceState, onStartRace, isHost, onKickPlayer, onCancelRace, 
                                 <Button
                                     className="start-massive-btn"
                                     onClick={onStartRace}
-                                    disabled={raceState.players.length < 0}
+                                    disabled={raceState.players.length < 2}
                                 >
                                     Start Race
                                 </Button>
