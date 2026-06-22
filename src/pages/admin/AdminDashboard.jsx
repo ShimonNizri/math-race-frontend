@@ -15,13 +15,18 @@ const REPORT_STATUSES = ['OPEN', 'IN_PROGRESS', 'RESOLVED', 'REJECTED'];
 
 export default function AdminDashboard() {
     const [searchParams, setSearchParams] = useSearchParams();
+
     const currentStatus = searchParams.get('status') || 'OPEN';
+    const reportIdParam = searchParams.get('reportId');
+    const pageParam = parseInt(searchParams.get('page') || '0', 10);
+
     const navigate = useNavigate();
 
     const [reports, setReports] = useState([]);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
-    const [page, setPage] = useState(0);
+
+    const [page, setPage] = useState(pageParam);
 
     const [selectedReport, setSelectedReport] = useState(null);
     const [originalTemplate, setOriginalTemplate] = useState(null);
@@ -67,34 +72,76 @@ export default function AdminDashboard() {
 
     useEffect(() => {
         loadReports();
-        setSelectedReport(null);
     }, [currentStatus, page]);
 
-    const handleReportClick = async (report) => {
-        setSelectedReport(report);
-        setEditStatus(report.status);
-        setAiResponse(null);
-        setTestOutput(null);
-        setOriginalTemplate(null);
-
-        try {
-            const response = await fetchTemplateById(report.templateId);
-            const templateData = response.data || response;
-
-            setOriginalTemplate(templateData);
-            setEditForm({
-                questionTemplate: templateData.questionTemplate || "",
-                answerTemplate: templateData.answerTemplate || "",
-                hintTemplate: templateData.hintTemplate || "",
-                distractor1: templateData.distractor1 || "",
-                distractor2: templateData.distractor2 || "",
-                distractor3: templateData.distractor3 || ""
-            });
-        } catch (err) {
-            console.error("Failed to load template:", err);
-            setOriginalTemplate({ error: "Could not load template from database." });
+    useEffect(() => {
+        if (pageParam !== page) {
+            setPage(pageParam);
         }
+        if (!reportIdParam && selectedReport) {
+            setSelectedReport(null);
+        }
+    }, [pageParam, reportIdParam]);
+
+    useEffect(() => {
+        const fetchReportDetails = async (reportToLoad) => {
+            setSelectedReport(reportToLoad);
+            setEditStatus(reportToLoad.status);
+            setAiResponse(null);
+            setTestOutput(null);
+            setOriginalTemplate(null);
+
+            try {
+                const response = await fetchTemplateById(reportToLoad.templateId);
+                const templateData = response.data || response;
+
+                setOriginalTemplate(templateData);
+                setEditForm({
+                    questionTemplate: templateData.questionTemplate || "",
+                    answerTemplate: templateData.answerTemplate || "",
+                    hintTemplate: templateData.hintTemplate || "",
+                    distractor1: templateData.distractor1 || "",
+                    distractor2: templateData.distractor2 || "",
+                    distractor3: templateData.distractor3 || ""
+                });
+            } catch (err) {
+                console.error("Failed to load template:", err);
+                setOriginalTemplate({ error: "Could not load template from database." });
+            }
+        };
+
+        if (reports.length > 0 && reportIdParam) {
+            if (selectedReport && String(selectedReport.id) === reportIdParam) return;
+
+            const reportToLoad = reports.find(r => String(r.id) === reportIdParam);
+            if (reportToLoad) {
+                fetchReportDetails(reportToLoad);
+            } else {
+                showToast("Report not found on this page.", "error");
+                setSearchParams({ status: currentStatus, page: page.toString() });
+            }
+        }
+    }, [reports, reportIdParam]);
+
+
+    const handleReportClick = (report) => {
+        setSearchParams({ status: currentStatus, page: page.toString(), reportId: report.id });
     };
+
+    const handleBackClick = () => {
+        setSearchParams({ status: currentStatus, page: page.toString() }); // מנקה את ה-reportId
+    };
+
+    const handleTabChange = (status) => {
+        setSearchParams({ status, page: '0' });
+        setPage(0);
+    };
+
+    const handlePageChange = (newPage) => {
+        setSearchParams({ status: currentStatus, page: newPage.toString() });
+        setPage(newPage);
+    };
+
 
     const handleFormChange = (e) => {
         const { name, value } = e.target;
@@ -104,14 +151,40 @@ export default function AdminDashboard() {
     const handleAiDebug = async () => {
         if (!selectedReport) return;
         setIsAiLoading(true);
+        setAiResponse(null);
         try {
             const response = await debugTemplateWithAI(selectedReport.id);
-            setAiResponse(response?.data || response.message || JSON.stringify(response));
+            const aiData = response?.data || response;
+            setAiResponse(aiData);
         } catch (err) {
-            setAiResponse("AI Analysis failed. Check console.");
+            console.error("AI Debug Error:", err);
+            setAiResponse({
+                success: false,
+                message: "AI Analysis failed. Check console for details."
+            });
         } finally {
             setIsAiLoading(false);
         }
+    };
+
+    const handleApplyAiFixes = () => {
+        if (!aiResponse) return;
+
+        setEditForm(prev => ({
+            questionTemplate: aiResponse.questionTemplate ? aiResponse.questionTemplate : prev.questionTemplate,
+            answerTemplate: aiResponse.answerTemplate ? aiResponse.answerTemplate : prev.answerTemplate,
+            hintTemplate: aiResponse.hintTemplate ? aiResponse.hintTemplate : prev.hintTemplate,
+            distractor1: aiResponse.distractor1 ? aiResponse.distractor1 : prev.distractor1,
+            distractor2: aiResponse.distractor2 ? aiResponse.distractor2 : prev.distractor2,
+            distractor3: aiResponse.distractor3 ? aiResponse.distractor3 : prev.distractor3,
+        }));
+
+        showToast("AI fixes applied to the editor!", "success");
+    };
+
+    const hasAiChanges = (ai) => {
+        return ai?.questionTemplate || ai?.answerTemplate || ai?.hintTemplate ||
+            ai?.distractor1 || ai?.distractor2 || ai?.distractor3;
     };
 
     const handleTestRun = async () => {
@@ -140,7 +213,8 @@ export default function AdminDashboard() {
             await updateTemplate(selectedReport.templateId, editForm);
 
             showToast("Changes saved successfully!", "success");
-            setSelectedReport(null);
+
+            setSearchParams({ status: currentStatus, page: page.toString() });
             loadReports();
         } catch (err) {
             showToast("Failed to save changes. Check console.", "error");
@@ -148,11 +222,6 @@ export default function AdminDashboard() {
         } finally {
             setIsSaving(false);
         }
-    };
-
-    const handleTabChange = (status) => {
-        setSearchParams({ status });
-        setPage(0);
     };
 
     const getStatusColorClass = (status) => {
@@ -177,7 +246,7 @@ export default function AdminDashboard() {
                         <button className="btn-home" onClick={() => navigate('/')}>
                             🏠 Home
                         </button>
-                        <button className="btn-back" onClick={() => setSelectedReport(null)}>
+                        <button className="btn-back" onClick={handleBackClick}>
                             ← Back to Reports
                         </button>
                     </div>
@@ -256,9 +325,29 @@ export default function AdminDashboard() {
                             </button>
 
                             {aiResponse && (
-                                <div className="ai-response-box fade-in">
-                                    <div className="ai-header">🤖 AI Analysis</div>
-                                    <p>{aiResponse}</p>
+                                <div className={`ai-response-box fade-in ${aiResponse.success ? 'success' : 'error'}`}>
+                                    <div className="ai-header">
+                                        🤖 AI Analysis {aiResponse.success ? '✅' : '❌'}
+                                    </div>
+                                    <p className="ai-message">{aiResponse.message}</p>
+
+                                    {aiResponse.success && hasAiChanges(aiResponse) && (
+                                        <div className="ai-suggestions">
+                                            <h5>Suggested Changes:</h5>
+                                            <div className="ai-fields-grid">
+                                                {aiResponse.questionTemplate && <div className="ai-field"><span className="ai-lbl">Question:</span> {aiResponse.questionTemplate}</div>}
+                                                {aiResponse.answerTemplate && <div className="ai-field"><span className="ai-lbl">Answer:</span> {aiResponse.answerTemplate}</div>}
+                                                {aiResponse.hintTemplate && <div className="ai-field"><span className="ai-lbl">Hint:</span> {aiResponse.hintTemplate}</div>}
+                                                {aiResponse.distractor1 && <div className="ai-field"><span className="ai-lbl">D1:</span> {aiResponse.distractor1}</div>}
+                                                {aiResponse.distractor2 && <div className="ai-field"><span className="ai-lbl">D2:</span> {aiResponse.distractor2}</div>}
+                                                {aiResponse.distractor3 && <div className="ai-field"><span className="ai-lbl">D3:</span> {aiResponse.distractor3}</div>}
+                                            </div>
+
+                                            <button className="btn-apply-ai fade-in" onClick={handleApplyAiFixes}>
+                                                ✨ Apply Fixes to Editor
+                                            </button>
+                                        </div>
+                                    )}
                                 </div>
                             )}
 
@@ -436,9 +525,9 @@ export default function AdminDashboard() {
 
             {!loading && !error && reports.length > 0 && (
                 <div className="pagination-container">
-                    <button disabled={page === 0} onClick={() => setPage(page - 1)}>Previous</button>
+                    <button disabled={page === 0} onClick={() => handlePageChange(page - 1)}>Previous</button>
                     <span className="page-indicator">Page {page + 1}</span>
-                    <button disabled={reports.length < 10} onClick={() => setPage(page + 1)}>Next</button>
+                    <button disabled={reports.length < 10} onClick={() => handlePageChange(page + 1)}>Next</button>
                 </div>
             )}
         </div>
